@@ -25,8 +25,8 @@ ADDR_KBRD:
 ##############################################################################
 # Mutable Data
 ##############################################################################
-OTetrominoX: .word 100  # Sample X coordinate
-OTetrominoY: .word 20   # Sample Y coordinate
+OTetrominoX: .word 2  # Sample X coordinate
+OTetrominoY: .word 0   # Sample Y coordinate
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 PIXEL: .word 2 # each pixel heigh and width
@@ -53,9 +53,6 @@ main:
     li $t3, 0x0000ff        # $t3 = blue
 
     lw $t0, ADDR_DSPL       # $t0 = base address for display
-    sw $t1, 0($t0)          # paint the first unit (i.e., top-left) red
-    sw $t2, 4($t0)          # paint the second unit on the first row green
-    sw $t3, 128($t0)        # paint the first unit on the second row blue
 	jal draw_tetromino_O
 
     # End or loop the game
@@ -71,37 +68,29 @@ draw_tetromino_O:
     lw $t4, OTetrominoX      # Load the X-coordinate
     lw $t5, OTetrominoY      # Load the Y-coordinate
 
-    # Initialize Y-coordinate (row)
-    move $t1, $t5            # Start with the top-most row
-
     li $t2, 4                # Counter for rows
-    row_loop:
-        bltz $t2, end_row_loop   # Exit loop if counter is less than 0
+row_loop:
+    addi $t2, $t2, -1        # Decrement row counter
+    bltz $t2, end_row_loop   # Exit loop if counter is less than 0
     
-        # Initialize X-coordinate (column)
-        move $t0, $t4            # Start with the left-most column
+    li $t3, 4                # Counter for columns
+column_loop:
+    addi $t3, $t3, -1        # Decrement column counter
+    bltz $t3, end_column_loop  # Exit loop if counter is less than 0
     
-        li $t3, 4                # Counter for columns
-    column_loop:
-        bltz $t3, end_column_loop  # Exit loop if counter is less than 0
+    # Set the coordinates for draw_pixel
+    add $a0, $t4, $t3        # Set X-coordinate
+    add $a1, $t5, $t2        # Set Y-coordinate
     
-        # Set the coordinates for draw_pixel
-        move $a0, $t0            # Set X-coordinate
-        move $a1, $t1            # Set Y-coordinate
+    jal draw_pixel           # Call subroutine to draw the pixel
     
-        jal draw_pixel           # Call subroutine to draw the pixel
-    
-        addi $t0, $t0, 1         # Move to the next column
-        addi $t3, $t3, -1        # Decrement column counter
-        j column_loop            # Jump back to the start of the column loop
-    
-    end_column_loop:
-        addi $t1, $t1, 1         # Move to the next row
-        addi $t2, $t2, -1        # Decrement row counter
-        j row_loop               # Jump back to the start of the row loop
-    
-    end_row_loop:
-        jr $ra                   # Return from subroutine
+    j column_loop            # Jump back to the start of the column loop
+end_column_loop:
+    j row_loop               # Jump back to the start of the row loop
+end_row_loop:
+    jr $ra                   # Return from subroutine
+
+
     
 draw_tetromino_I:
     lw $a2, ADDR_DSPL        # Load the base address of the display into $a2
@@ -291,12 +280,16 @@ draw_pixel:
     # $t4 - color (loaded within this subroutine)
 
     # Calculate the offset for the x-coordinate and y-coordinate
+    lw $a0, OTetrominoX     # Added for debugging
+    lw $a1, OTetrominoY     # Added for debugging
     lw $t0, ADDR_DSPL        # Base address of the display
     li $t1, 4                # Since 1 pixel equals 8 units (adjust if your display is different)
+    li $t5, 32
     
     # Offset calculations
     mul $t2, $a0, $t1        # x offset
     mul $t3, $a1, $t1        # y offset
+    mul $t3, $t5, $t3        # multiply row offset   
     add $t0, $t0, $t2        # Add x offset to display address
     add $t0, $t0, $t3        # Add y offset
 
@@ -305,3 +298,5 @@ draw_pixel:
     sw $t4, 0($t0)           # Store the color at the calculated address
 
     jr $ra                   # Return from subroutine
+
+
