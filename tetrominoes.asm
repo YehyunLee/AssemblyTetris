@@ -27,7 +27,7 @@ ADDR_KBRD:
 ##############################################################################
 OTetrominoX: .word 100  # Sample X coordinate
 OTetrominoY: .word 20   # Sample Y coordinate
-BlockColor: .word 0xFFFFFFFF #Block Color of tetrominoes for now
+BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 PIXEL: .word 2 # each pixel heigh and width
 ##############################################################################
@@ -48,19 +48,22 @@ PIXEL: .word 2 # each pixel heigh and width
 
 	# Run the Tetris game.
 main:
-    # Initialize the game
+    li $t1, 0xff0000        # $t1 = red
+    li $t2, 0x00ff00        # $t2 = green
+    li $t3, 0x0000ff        # $t3 = blue
 
-game_loop:
-	# 1a. Check if key has been pressed
-    # 1b. Check which key has been pressed
-    # 2a. Check for collisions
-	# 2b. Update locations (paddle, ball)
-	# 3. Draw the screen
-	# 4. Sleep
-	jal draw_tetromino_O # drawing square tetromino
+    lw $t0, ADDR_DSPL       # $t0 = base address for display
+    sw $t1, 0($t0)          # paint the first unit (i.e., top-left) red
+    sw $t2, 4($t0)          # paint the second unit on the first row green
+    sw $t3, 128($t0)        # paint the first unit on the second row blue
+	jal draw_tetromino_O
 
-    #5. Go back to 1
-    b game_loop
+    # End or loop the game
+    # For testing, we might not loop
+    # b game_loop # Commented out for a single run test
+    li $v0, 10 # Exit syscall
+    syscall
+    
 draw_tetromino_O:
     lw $a2, ADDR_DSPL        # Load the base address of the display into $a2
 
@@ -71,37 +74,34 @@ draw_tetromino_O:
     # Initialize Y-coordinate (row)
     move $t1, $t5            # Start with the top-most row
 
-    # Loop for each of the 4 rows
     li $t2, 4                # Counter for rows
     row_loop:
-        bgez $t2, end_row_loop   # Break the loop if counter is less than 0
+        bltz $t2, end_row_loop   # Exit loop if counter is less than 0
     
         # Initialize X-coordinate (column)
         move $t0, $t4            # Start with the left-most column
     
-        # Loop for each of the 4 columns
         li $t3, 4                # Counter for columns
     column_loop:
-        bgez $t3, end_column_loop   # Break the loop if counter is less than 0
+        bltz $t3, end_column_loop  # Exit loop if counter is less than 0
     
         # Set the coordinates for draw_pixel
         move $a0, $t0            # Set X-coordinate
         move $a1, $t1            # Set Y-coordinate
     
-        jal draw_pixel           # Call subroutine to draw the pixel at (x, y)
+        jal draw_pixel           # Call subroutine to draw the pixel
     
         addi $t0, $t0, 1         # Move to the next column
         addi $t3, $t3, -1        # Decrement column counter
-        j column_loop            # Repeat the loop for the next column
+        j column_loop            # Jump back to the start of the column loop
     
     end_column_loop:
         addi $t1, $t1, 1         # Move to the next row
         addi $t2, $t2, -1        # Decrement row counter
-        j row_loop               # Repeat the loop for the next row
+        j row_loop               # Jump back to the start of the row loop
     
     end_row_loop:
         jr $ra                   # Return from subroutine
-
     
 draw_tetromino_I:
     lw $a2, ADDR_DSPL        # Load the base address of the display into $a2
@@ -284,17 +284,24 @@ draw_tetromino_T: #subroutine to draw square tetromino
 
 
 draw_pixel:
+    # Arguments:
+    # $a0 - x-coordinate
+    # $a1 - y-coordinate
+    # $a2 - display address is passed but not needed since we're loading it again
+    # $t4 - color (loaded within this subroutine)
+
     # Calculate the offset for the x-coordinate and y-coordinate
-    lw $t0, ADDR_DSPL
-    li $t1, 8                 # Since 1 pixel equals 8 units
-    mul $t2, $a0, $t1         # x offset = x-coordinate * 8 units
-    mul $t3, $a1, $t1         # y offset = y-coordinate * 8 units
+    lw $t0, ADDR_DSPL        # Base address of the display
+    li $t1, 4                # Since 1 pixel equals 8 units (adjust if your display is different)
     
-    add $t0, $a2, $t2         # Add x offset to display address
-    add $t0, $t0, $t3         # Add y offset to the result
-    
+    # Offset calculations
+    mul $t2, $a0, $t1        # x offset
+    mul $t3, $a1, $t1        # y offset
+    add $t0, $t0, $t2        # Add x offset to display address
+    add $t0, $t0, $t3        # Add y offset
 
-    lw $t4, BlockColor
-    sw $a1, 0($t0)
+    # Load color and draw
+    lw $t4, BlockColor       # Load the block color
+    sw $t4, 0($t0)           # Store the color at the calculated address
 
-    jr $ra                 # Return from subroutine
+    jr $ra                   # Return from subroutine
