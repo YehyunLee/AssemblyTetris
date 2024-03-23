@@ -2,7 +2,7 @@
 # This file contains our implementation of Tetris.
 #
 # Student 1: Yehyun Lee, 1008992217
-# Student 2: Name, Student Number (if applicable)
+# Student 2: Aung Zwe Maw, 1008604949
 ######################## Bitmap Display Configuration ########################
 # - Unit width in pixels:       TODO
 # - Unit height in pixels:      TODO
