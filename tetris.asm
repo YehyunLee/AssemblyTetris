@@ -93,14 +93,14 @@ stack_empty:
     # Storing values
     li $t2, 1                # Value for s2
     li $t3, 0                # Value for s3
-    li $t4, 8               # Value for s4
-    li $t5, 20               # Value for s5
+    li $t4, 14               # Value for s4
+    li $t5, 2               # Value for s5
     # Store values onto the stack
     sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
     sw $t3, 4($sp)         # Store value of $s11 above $s10
     sw $t4, 8($sp)         # Store value of $s12 above $s11
     sw $t5, 12($sp)        # Store value of $s13 above $s12
-    j game_loop
+    j load_saved
     
 
 ##############################################################################
