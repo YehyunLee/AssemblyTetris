@@ -43,34 +43,27 @@ tupleArray: .space 16       # Each tuple occupies 4 words, so 4 * 4 = 16 bytes
     # lw $s6, ADDR_DSPL
     # lw $s7, ADDR_KBRD
 
-lw $s6, ADDR_DSPL
-lw $s7, ADDR_KBRD
+
 	# Run the Tetris game.
 main:
-
+    # CONSTANTS SAVED
+    lw $s6, ADDR_DSPL
+    lw $s7, ADDR_KBRD
     # Initialize the game
     jal init_grid
 game_loop:
-    li $s4, 4
-    li $s5, 6
-    move $t0, $s0        # Load the base address of the display into $t0
-    jal draw_tetromino_Z
-    
-    # Exit syscall
-    # li $v0, 10
-    # syscall
-
-
 	# 1a. Check if key has been pressed
 	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
 	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
 	syscall                   # Perform system call to read from keyboard
-
     move $t0, $s7               # $t0 = base address for keyboard
     lw $t8, 0($t0)                  # Load the first word from the keyboard
     beq $t8, 1, keyboard_input      # Branch to keyboard_input if the first word is equal to 1
     b game_loop                          # Branch back to main if the key is not pressed
+    
     # 1b. Check which key has been pressed
+    # Refer to function named "keyboard_input"
+    
     # 2a. Check for collisions
 	# 2b. Update locations (paddle, ball)
 	# 3. Draw the screen
@@ -91,10 +84,21 @@ game_loop:
 ##############################################################################
 keyboard_input:
     lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
-    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was pressed
+    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was 
+    
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
-    b main                          # Branch back to main
+    
+    jal init_grid
+    li $s4, 4
+    li $s5, 6
+    move $t0, $s0        # Load the base address of the display into $t0
+    jal draw_tetromino_Z
+
+    # TODO
+    # ...
+    # If a0 is A WASD, ...
+    b game_loop                          # Branch back to game loop
 
 respond_to_Q:
     li $v0, 10                      # Load immediate: $v0 = 10 (code for exit)
