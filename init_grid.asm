@@ -84,6 +84,7 @@ paint_loop_end:
     toggle_end:
         # Check if painted ALL pixels, if so then exit
         bne $t3, $t5, paint_loop
+
 wall_initL:
     # INIT
     li $t8, 0x000000        # Black
@@ -127,13 +128,37 @@ reset_rowR:
     add $t0, $t0, $t1
     add $t9, $t9, $t1
 right_wall:
-    beq $t1, 128, exit          # For loop
+    beq $t1, 128, wall_initB          # For loop
     beq $t2, 129, reset_rowR
     sw $t8, 0($t0)
     addi $t2, $t2, 1
     addi $t0, $t0, 128
     addi $t9, $t9, 128
     j right_wall
+
+wall_initB:
+    # INIT
+    li $t1, 832               # Col counter
+    li $t2, 0               # Row counter
+    sub $t0, $t0, $t9       # Subtract to get initial offset
+    li $t9, 0
+    j bottom_wall
+reset_rowB:
+    li $t2, 0
+    addi $t1, $t1, 1
+    sub $t0, $t0, $t9       # Subtract to get initial offset
+    li $t9, 0
+    mul $t5, $t1, 4              # 4*col
+    add $t0, $t0, $t5
+    add $t9, $t9, $t5
+bottom_wall:
+    beq $t1, 864, exit          # For loop
+    beq $t2, 6, reset_rowB
+    sw $t8, 0($t0)
+    addi $t2, $t2, 1
+    addi $t0, $t0, 128
+    addi $t9, $t9, 128
+    j bottom_wall
 exit:
     li $v0, 10              # terminate the program gracefully
     syscall
