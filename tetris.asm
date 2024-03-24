@@ -56,18 +56,16 @@ main:
     # Allocate space on the stack to store additional variables
     addi $sp, $sp, -16      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
-    # add_new
-    # Each tuple consists of four words: s2, s3, s4, s5
-    # Storing values
-    li $t2, 1                # Value for s2
-    li $t3, 0                # Value for s3
-    li $t4, 10               # Value for s4
-    li $t5, 20               # Value for s5
-    # Store values onto the stack
-    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
-    sw $t3, 4($sp)         # Store value of $s11 above $s10
-    sw $t4, 8($sp)         # Store value of $s12 above $s11
-    sw $t5, 12($sp)        # Store value of $s13 above $s12
+    # Check if stack is empty
+    # Assuming $sp is already pointing to the stack top
+    lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
+    beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
+    
+    # If stack is not empty, load values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t2
+    lw $t3, 4($sp)          # Load value from above $s10 into $t3
+    lw $t4, 8($sp)          # Load value from above $s11 into $t4
+    lw $t5, 12($sp)         # Load value from above $s12 into $t5
 
 	# 1a. Check if key has been pressed
 	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
@@ -87,6 +85,22 @@ game_loop:
 
     #5. Go back to 1
     b game_loop                          # Branch back to main if the key is not pressed
+
+
+stack_empty:
+    # If stack is empty, store new values onto the stack
+    # Each tuple consists of four words: s2, s3, s4, s5
+    # Storing values
+    li $t2, 1                # Value for s2
+    li $t3, 0                # Value for s3
+    li $t4, 8               # Value for s4
+    li $t5, 20               # Value for s5
+    # Store values onto the stack
+    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
+    sw $t3, 4($sp)         # Store value of $s11 above $s10
+    sw $t4, 8($sp)         # Store value of $s12 above $s11
+    sw $t5, 12($sp)        # Store value of $s13 above $s12
+    j game_loop
     
 
 ##############################################################################
