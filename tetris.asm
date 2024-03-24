@@ -104,8 +104,7 @@ keyboard_input:
     
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
-    
-    jal mutation
+    beq $v0, 1, mutation
 
     # TODO
     # ...
@@ -134,10 +133,10 @@ mutation:
     beq $a0, 100, add_x_1
     j game_loop
 sub_x_1:
-    subi $t4, $t4, 1
+    subi $t4, $t4, 2
     j update
 add_x_1:
-    addi $t4, $t4, 1
+    addi $t4, $t4, 2
     j update
 update:
     # Store values onto the stack
@@ -154,13 +153,12 @@ load_saved:
     lw $t4, 8($sp)          # Load value from above $s11 into $t2
     lw $t5, 12($sp)         # Load value from above $s12 into $t3
     #################
-    move $s4, $t3
-    move $s5, $t4
+    move $s4, $t4
+    move $s5, $t5
     move $t0, $s0        # Load the base address of the display into $t0
     jal draw_tetromino_Z
     #################
-    # b game_loop                          # Branch back to game loop
-    jr $ra
+    b game_loop                          # Branch back to game loop
 
 
 ##############################################################################
