@@ -105,7 +105,7 @@ keyboard_input:
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
     
-    j load_saved
+    jal mutation
 
     # TODO
     # ...
@@ -118,8 +118,33 @@ respond_to_Q:
 
 
 ##############################################################################
-# Function for Load Saved
+# Function for Mutation and Load Saved
 ##############################################################################
+mutation:
+    move $t0, $s7               # $t0 = base address for keyboard
+    # Retrieve values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
+    lw $t3, 4($sp)          # Load value from above $s10 into $t1
+    lw $t4, 8($sp)          # Load value from above $s11 into $t2
+    lw $t5, 12($sp)         # Load value from above $s12 into $t3
+    #################
+    # if A:97, sub t4 with 1
+    beq $a0, 97, sub_x_1
+    # elif D:100, add t4 with 1
+    beq $a0, 100, add_x_1
+    j game_loop
+sub_x_1:
+    subi $t4, $t4, 1
+    j update
+add_x_1:
+    addi $t4, $t4, 1
+    j update
+update:
+    # Store values onto the stack
+    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
+    sw $t3, 4($sp)         # Store value of $s11 above $s10
+    sw $t4, 8($sp)         # Store value of $s12 above $s11
+    sw $t5, 12($sp)        # Store value of $s13 above $s12
 load_saved:
     jal init_grid
     #################
@@ -134,7 +159,8 @@ load_saved:
     move $t0, $s0        # Load the base address of the display into $t0
     jal draw_tetromino_Z
     #################
-    b game_loop                          # Branch back to game loop
+    # b game_loop                          # Branch back to game loop
+    jr $ra
 
 
 ##############################################################################
