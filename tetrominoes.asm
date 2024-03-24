@@ -25,8 +25,8 @@ ADDR_KBRD:
 ##############################################################################
 # Mutable Data
 ##############################################################################
-OTetrominoX: .word 2  # Sample X coordinate
-OTetrominoY: .word 0   # Sample Y coordinate
+OTetrominoX: .word 1  # Sample X coordinate
+OTetrominoY: .word 2   # Sample Y coordinate
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 PIXEL: .word 2 # each pixel heigh and width
@@ -63,32 +63,29 @@ main:
     
 draw_tetromino_O:
     lw $a2, ADDR_DSPL        # Load the base address of the display into $a2
-
-    # Load the top-left corner X and Y coordinates
     lw $t4, OTetrominoX      # Load the X-coordinate
     lw $t5, OTetrominoY      # Load the Y-coordinate
 
-    li $t2, 4                # Counter for rows
-row_loop:
-    addi $t2, $t2, -1        # Decrement row counter
-    bltz $t2, end_row_loop   # Exit loop if counter is less than 0
+    # Draw the first pixel at the top-left corner
+    li $a0, 1                # X offset from $t4
+    li $a1, 0                # Y offset from $t5
+    add $a0, $a0, $t4        # Calculate actual X-coordinate
+    add $a1, $a1, $t5        # Calculate actual Y-coordinate
+    jal draw_pixel           # Draw the pixel
+
+    # Draw the second pixel to the right of the first one
+    li $a0, 3                # X offset from $t4 for the second pixel
+    li $a1, 0                # Y offset from $t5 remains the same
+    add $a0, $a0, $t4        # Calculate actual X-coordinate for the second pixel
+    add $a1, $a1, $t5        # Calculate actual Y-coordinate remains the same
+    jal draw_pixel           # Draw the second pixel
     
-    li $t3, 4                # Counter for columns
-column_loop:
-    addi $t3, $t3, -1        # Decrement column counter
-    bltz $t3, end_column_loop  # Exit loop if counter is less than 0
+    # Ensure to add more calls to draw_pixel here for the rest of the "O" Tetromino pixels
     
-    # Set the coordinates for draw_pixel
-    add $a0, $t4, $t3        # Set X-coordinate
-    add $a1, $t5, $t2        # Set Y-coordinate
-    
-    jal draw_pixel           # Call subroutine to draw the pixel
-    
-    j column_loop            # Jump back to the start of the column loop
-end_column_loop:
-    j row_loop               # Jump back to the start of the row loop
-end_row_loop:
     jr $ra                   # Return from subroutine
+
+    
+    
 
 
     
@@ -273,30 +270,20 @@ draw_tetromino_T: #subroutine to draw square tetromino
 
 
 draw_pixel:
-    # Arguments:
-    # $a0 - x-coordinate
-    # $a1 - y-coordinate
-    # $a2 - display address is passed but not needed since we're loading it again
-    # $t4 - color (loaded within this subroutine)
-
-    # Calculate the offset for the x-coordinate and y-coordinate
-    lw $a0, OTetrominoX     # Added for debugging
-    lw $a1, OTetrominoY     # Added for debugging
     lw $t0, ADDR_DSPL        # Base address of the display
-    li $t1, 4                # Since 1 pixel equals 8 units (adjust if your display is different)
-    li $t5, 32
+    li $t1, 32               # Assuming display width is 32 pixels (words) per row
     
-    # Offset calculations
-    mul $t2, $a0, $t1        # x offset
-    mul $t3, $a1, $t1        # y offset
-    mul $t3, $t5, $t3        # multiply row offset   
-    add $t0, $t0, $t2        # Add x offset to display address
-    add $t0, $t0, $t3        # Add y offset
+    mul $t2, $a1, $t1        # Calculate row offset in memory (Y-coordinate * display width)
+    sll $t2, $t2, 2          # Convert row offset to bytes by shifting left by 2 (mul by 4)
+    
+    sll $a0, $a0, 2          # Convert X-coordinate to byte offset by shifting left by 2
+    add $t0, $t0, $t2        # Add row offset to base address
+    add $t0, $t0, $a0        # Add column offset to address
 
-    # Load color and draw
     lw $t4, BlockColor       # Load the block color
     sw $t4, 0($t0)           # Store the color at the calculated address
 
     jr $ra                   # Return from subroutine
+
 
 
