@@ -59,8 +59,7 @@ game_loop:
     move $t0, $s7               # $t0 = base address for keyboard
     lw $t8, 0($t0)                  # Load the first word from the keyboard
     beq $t8, 1, keyboard_input      # Branch to keyboard_input if the first word is equal to 1
-    b game_loop                          # Branch back to main if the key is not pressed
-    
+
     # 1b. Check which key has been pressed
     # Refer to function named "keyboard_input"
     
@@ -70,8 +69,8 @@ game_loop:
 	# 4. Sleep
 
     #5. Go back to 1
-    b main
-
+    b game_loop                          # Branch back to main if the key is not pressed
+    
 
 ##############################################################################
 # Function for Random
@@ -89,22 +88,28 @@ keyboard_input:
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
     
-    jal init_grid
-    li $s4, 4
-    li $s5, 6
-    move $t0, $s0        # Load the base address of the display into $t0
-    jal draw_tetromino_Z
+    j load_saved
 
     # TODO
     # ...
     # If a0 is A WASD, ...
-    b game_loop                          # Branch back to game loop
+
 
 respond_to_Q:
     li $v0, 10                      # Load immediate: $v0 = 10 (code for exit)
     syscall                         # Perform system call to terminate the program gracefully
 
 
+##############################################################################
+# Function for Load Saved
+##############################################################################
+load_saved:
+    jal init_grid
+    li $s4, 4
+    li $s5, 6
+    move $t0, $s0        # Load the base address of the display into $t0
+    jal draw_tetromino_Z
+    b game_loop                          # Branch back to game loop
 
 
 ##############################################################################
