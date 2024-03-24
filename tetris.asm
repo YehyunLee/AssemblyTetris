@@ -30,9 +30,6 @@ ADDR_KBRD:
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
-# Define an array to store tuples
-tupleArray: .space 16       # Each tuple occupies 4 words, so 4 * 4 = 16 bytes
-                            # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
 # Major variables:
     # lw $s0 for paint (sw)
     # li $s1 for paint counter (need this for general use)
@@ -51,7 +48,27 @@ main:
     lw $s7, ADDR_KBRD
     # Initialize the game
     jal init_grid
+    
+    # Using stack as if list of tuples:
+    # Define an array to store tuples
+    # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
+                            # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
+    # Allocate space on the stack to store additional variables
+    addi $sp, $sp, -16      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
+    # add_new
+    # Each tuple consists of four words: s2, s3, s4, s5
+    # Storing values
+    li $t2, 1                # Value for s2
+    li $t3, 0                # Value for s3
+    li $t4, 10               # Value for s4
+    li $t5, 20               # Value for s5
+    # Store values onto the stack
+    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
+    sw $t3, 4($sp)         # Store value of $s11 above $s10
+    sw $t4, 8($sp)         # Store value of $s12 above $s11
+    sw $t5, 12($sp)        # Store value of $s13 above $s12
+
 	# 1a. Check if key has been pressed
 	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
 	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
@@ -105,10 +122,18 @@ respond_to_Q:
 ##############################################################################
 load_saved:
     jal init_grid
-    li $s4, 4
-    li $s5, 6
+    #################
+    # Retrieve values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
+    lw $t3, 4($sp)          # Load value from above $s10 into $t1
+    lw $t4, 8($sp)          # Load value from above $s11 into $t2
+    lw $t5, 12($sp)         # Load value from above $s12 into $t3
+    #################
+    move $s4, $t3
+    move $s5, $t4
     move $t0, $s0        # Load the base address of the display into $t0
     jal draw_tetromino_Z
+    #################
     b game_loop                          # Branch back to game loop
 
 
