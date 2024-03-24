@@ -10,14 +10,6 @@ ADDR_DSPL:
 ADDR_KBRD:
     .word 0xffff0000
 
-# Random
-SEED:
-    .word 12345
-CONSTANT1:
-    .word 1103515245
-CONSTANT2:
-    .word 12345
-
     .text
 	.globl main
 	# .globl init_grid
@@ -48,48 +40,36 @@ tupleArray: .space 16       # Each tuple occupies 4 words, so 4 * 4 = 16 bytes
     # li $s3 for what ANGLE ex) 0 is default, 1 is one 90 roration upto 3.
     # li $s4 OTetrominoX
     # li $s5 OTetrominoY
+    # lw $s6, ADDR_DSPL
+    # lw $s7, ADDR_KBRD
 
-
-
-
-
+lw $s6, ADDR_DSPL
+lw $s7, ADDR_KBRD
 	# Run the Tetris game.
 main:
+
     # Initialize the game
     jal init_grid
-
 game_loop:
-    # li $s4, 4
-    # li $s5, 6
-    # move $t0, $s0        # Load the base address of the display into $t0
-    # jal draw_tetromino_Z
+    li $s4, 4
+    li $s5, 6
+    move $t0, $s0        # Load the base address of the display into $t0
+    jal draw_tetromino_Z
     
-       # Load the seed value
-    lw $t0, SEED
-    
-    # Generate a random number
-    jal random
-    
-    # Ensure the random number is in the range [0, 6]
-    andi $t1, $v0, 0x7    # Mask out all but the lowest 3 bits
-    
-    # Print the random number
-    move $a0, $t1         # Set $a0 to the random number to print
-    li $v0, 1             # Set syscall number for printing integer
-    syscall
-    
-    # Exit the program gracefully
-    li $v0, 10
-    syscall
     # Exit syscall
-    li $v0, 10
-    syscall
+    # li $v0, 10
+    # syscall
 
 
 	# 1a. Check if key has been pressed
-	
-	
-	
+	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
+	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
+	syscall                   # Perform system call to read from keyboard
+
+    move $t0, $s7               # $t0 = base address for keyboard
+    lw $t8, 0($t0)                  # Load the first word from the keyboard
+    beq $t8, 1, keyboard_input      # Branch to keyboard_input if the first word is equal to 1
+    b game_loop                          # Branch back to main if the key is not pressed
     # 1b. Check which key has been pressed
     # 2a. Check for collisions
 	# 2b. Update locations (paddle, ball)
@@ -97,33 +77,21 @@ game_loop:
 	# 4. Sleep
 
     #5. Go back to 1
-    b game_loop
+    b main
 
 
 ##############################################################################
 # Function for Random
 ##############################################################################
 # Pseudo-random number generator function
-random:
-    # Simple arithmetic operations to generate the next pseudo-random number
-    lw $t2, SEED          # Load the seed into $t2
-    lw $t1, CONSTANT1     # Load constant 1
-    mul $t2, $t2, $t1     # Multiply the seed by a constant
-    lw $t1, CONSTANT2     # Load constant 2
-    add $t2, $t2, $t1     # Add another constant
-    sw $t2, SEED          # Store the updated seed
-    
-    # Return the pseudo-random number
-    move $v0, $t2
-    jr $ra
-
+# ...
 
 ##############################################################################
 # Function for Keyboard
 ##############################################################################
 keyboard_input:
     lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
-    beq $t8, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was pressed
+    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was pressed
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
     b main                          # Branch back to main
@@ -144,7 +112,7 @@ init_grid:
     li $t2, 0xC0C0C0        # $t2 = brightgrey
     
     # INIT BASE ADDRESS
-    lw $s0, ADDR_DSPL       # $s0 = base address for display
+    move $s0, $s6           # $s0 = base address for display
     li $s1, 0               # [For use of wall] counter to sub from t9
     
     # INIT LOOP COUNTER and PIXEL COLOUR

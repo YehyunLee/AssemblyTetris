@@ -22,8 +22,8 @@ main:
     b main
 
 keyboard_input:                     # A key is pressed
-    # lw $a0, 4($t0)                  # Load second word from keyboard
-    beq $t8, 0x71, respond_to_Q     # Check if the key q was pressed
+    lw $a0, 4($t0)                  # Load second word from keyboard
+    beq $a0, 0x71, respond_to_Q     # Check if the key q was pressed
 
     li $v0, 1                       # ask system to print $a0
     syscall
