@@ -26,7 +26,7 @@ ADDR_KBRD:
 # Mutable Data
 ##############################################################################
 OTetrominoX: .word 4  # Sample X coordinate
-OTetrominoY: .word 4   # Sample Y coordinate
+OTetrominoY: .word 0   # Sample Y coordinate
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 PIXEL: .word 2 # each pixel heigh and width
@@ -50,7 +50,7 @@ PIXEL: .word 2 # each pixel heigh and width
 main:
 
     lw $t0, ADDR_DSPL        # Load the base address of the display into $t0
-    jal draw_tetromino_S
+    jal draw_tetromino_T_270
     
     # Exit syscall
     li $v0, 10
@@ -60,7 +60,11 @@ draw_tetromino_O:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 0               # Label Tetromino_O for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -68,15 +72,15 @@ draw_tetromino_O:
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopO:
-    blt $t8, 4, continue_yO  # If Y loop counter < 8, continue
-    j end_y_loopO            # Else, jump to the end of Y loop
-continue_yO:
+y_loop:
+    blt $t8, 4, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopO:
-    blt $t7, 4, continue_xO  # If X loop counter < 2, continue
-    j end_x_loopO            # Else, jump to the end of X loop
-continue_xO:
+x_loop:
+    blt $t7, 4, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -88,20 +92,25 @@ continue_xO:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopO                # Jump back to the start of the X loop
-end_x_loopO:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopO                # Jump back to the start of the Y loop
-end_y_loopO:
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     jr $ra                  # Return from subroutine
 
 
 
+    
 draw_tetromino_I:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 1               # Label Tetromino_I for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -109,15 +118,15 @@ draw_tetromino_I:
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopI:
-    blt $t8, 8, continue_yI  # If Y loop counter < 8, continue
-    j end_y_loopI            # Else, jump to the end of Y loop
-continue_yI:
+y_loop:
+    blt $t8, 8, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopI:
-    blt $t7, 2, continue_xI  # If X loop counter < 2, continue
-    j end_x_loopI            # Else, jump to the end of X loop
-continue_xI:
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -129,20 +138,27 @@ continue_xI:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopI                # Jump back to the start of the X loop
-end_x_loopI:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopI                # Jump back to the start of the Y loop
-end_y_loopI:
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     jr $ra                  # Return from subroutine
-
-
     
-draw_tetromino_L:
+
+draw_tetromino_I_90:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 1               # Label Tetromino_I for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 6
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -150,15 +166,15 @@ draw_tetromino_L:
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopL:
-    blt $t8, 6, continue_yL  # If Y loop counter < 6, continue
-    j end_y_loopL            # Else, jump to the end of Y loop
-continue_yL:
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 2, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopL:
-    blt $t7, 2, continue_xL  # If X loop counter < 2, continue
-    j end_x_loopL            # Else, jump to the end of X loop
-continue_xL:
+x_loop:
+    blt $t7, 8, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -170,35 +186,26 @@ continue_xL:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopL                # Jump back to the start of the X loop
-end_x_loopL:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopL                # Jump back to the start of the Y loop
-end_y_loopL:
-    # Draw the foot of the L
-    # Set the Y position for the foot; it's one unit below the last row of the main body
-    li $t8, 5                # Y offset foot
-    add $t8, $t5, $t8        # Add from Y = Y + initial position
-    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, 2                # X offset foot
-    add $t2, $t2, $t4        # Add from X = X + initial position
-    add $t8, $t2, $t8        # Actual coordinate = x + y
-    mult $t8, $t8, 4         # Convert to byte offset
-    add $t8, $t0, $t8        # Add to the base address
-    sw $t6, 0($t8)
-    sw $t6, 4($t8)
-    sw $t6, -128($t8)
-    sw $t6, -124($t8)
-    
-
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     jr $ra                  # Return from subroutine
 
-
-draw_tetromino_J:
+draw_tetromino_I_180:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 1               # Label Tetromino_I for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 6
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -206,15 +213,15 @@ draw_tetromino_J:
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopJ:
-    blt $t8, 6, continue_yJ  # If Y loop counter < 6, continue
-    j end_y_loopJ            # Else, jump to the end of Y loop
-continue_yJ:
+y_loop:
+    blt $t8, 8, continue_y  # If Y loop counter < 2, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopJ:
-    blt $t7, 2, continue_xJ  # If X loop counter < 2, continue
-    j end_x_loopJ            # Else, jump to the end of X loop
-continue_xJ:
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -226,36 +233,27 @@ continue_xJ:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopJ                # Jump back to the start of the X loop
-end_x_loopJ:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopJ                # Jump back to the start of the Y loop
-end_y_loopJ:
-    # Draw the foot of the L
-    # Set the Y position for the foot; it's one unit below the last row of the main body
-    li $t8, 5                # Y offset foot
-    add $t8, $t5, $t8        # Add from Y = Y + initial position
-    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, -2                # X offset foot
-    add $t2, $t2, $t4        # Add from X = X + initial position
-    add $t8, $t2, $t8        # Actual coordinate = x + y
-    mult $t8, $t8, 4         # Convert to byte offset
-    add $t8, $t0, $t8        # Add to the base address
-    sw $t6, 0($t8)
-    sw $t6, 4($t8)
-    sw $t6, -128($t8)
-    sw $t6, -124($t8)
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     jr $ra                  # Return from subroutine
-
     
 
-
-
-draw_tetromino_T: #subroutine to draw square tetromino    
+draw_tetromino_I_270:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 1               # Label Tetromino_I for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 6
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -263,15 +261,15 @@ draw_tetromino_T: #subroutine to draw square tetromino
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopT:
-    blt $t8, 2, continue_yT  # If Y loop counter < 6, continue
-    j end_y_loopT            # Else, jump to the end of Y loop
-continue_yT:
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 2, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopT:
-    blt $t7, 6, continue_xT  # If X loop counter < 2, continue
-    j end_x_loopT            # Else, jump to the end of X loop
-continue_xT:
+x_loop:
+    bgt $t7, -8, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -282,33 +280,25 @@ continue_xT:
     
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
-    addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopT                # Jump back to the start of the X loop
-end_x_loopT:
+    subi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopT                # Jump back to the start of the Y loop
-end_y_loopT:
-    li $t8, 3                # Y offset foot
-    add $t8, $t5, $t8        # Add from Y = Y + initial position
-    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, 2                # X offset foot
-    add $t2, $t2, $t4        # Add from X = X + initial position
-    add $t8, $t2, $t8        # Actual coordinate = x + y
-    mult $t8, $t8, 4         # Convert to byte offset
-    add $t8, $t0, $t8        # Add to the base address
-    sw $t6, 0($t8)
-    sw $t6, 4($t8)
-    sw $t6, -128($t8)
-    sw $t6, -124($t8)
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     jr $ra                  # Return from subroutine
-    
 
 
 draw_tetromino_S: #subroutine to draw square tetromino
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 2               # Label Tetromino_Z for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -316,15 +306,15 @@ draw_tetromino_S: #subroutine to draw square tetromino
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopS:
-    blt $t8, 2, continue_yS  # If Y loop counter < 8, continue
-    j end_y_loopS            # Else, jump to the end of Y loop
-continue_yS:
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopS:
-    blt $t7, 4, continue_xS  # If X loop counter < 2, continue
-    j end_x_loopS            # Else, jump to the end of X loop
-continue_xS:
+x_loop:
+    blt $t7, 4, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -336,11 +326,11 @@ continue_xS:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopS                # Jump back to the start of the X loop
-end_x_loopS:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopS                # Jump back to the start of the Y loop
-end_y_loopS:
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     li $t8, 3                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
@@ -359,30 +349,34 @@ end_y_loopS:
     sw $t6, -144($t8)
     jr $ra                  # Return from subroutine
 
-
-
-
-draw_tetromino_Z: #subroutine to draw square tetromino
+draw_tetromino_S_90: #subroutine to draw square tetromino
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
     lw $t4, OTetrominoX     # Load the X-coordinate
     lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
     lw $t6, BlockColor      # Load the block color
+    li $s2, 2               # Label Tetromino_Z for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
+    # Offset X and Y for rotation
+    addi $t4, $t4, -2
+    addi $t5, $t5, 2
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
     mul $t2, $t5, $t1       # Y offset in terms of display width
     add $t9, $t4, $t2       # Combine X and Y offsets
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopZ:
-    blt $t8, 2, continue_yZ  # If Y loop counter < 8, continue
-    j end_y_loopZ            # Else, jump to the end of Y loop
-continue_yZ:
+y_loop:
+    blt $t8, 4, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopZ:
-    blt $t7, 4, continue_xZ  # If X loop counter < 2, continue
-    j end_x_loopZ            # Else, jump to the end of X loop
-continue_xZ:
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -394,11 +388,74 @@ continue_xZ:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopZ                # Jump back to the start of the X loop
-end_x_loopZ:
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
     addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopZ                # Jump back to the start of the Y loop
-end_y_loopZ:
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 2                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, 128($t8)
+    sw $t6, 132($t8)
+    sw $t6, 256($t8)
+    sw $t6, 260($t8)
+    sw $t6, 384($t8)
+    sw $t6, 388($t8)
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_S_180: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 2               # Label Tetromino_S for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -6
+    addi $t5, $t5, 0
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 4, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
     li $t8, 3                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
@@ -415,4 +472,1060 @@ end_y_loopZ:
     sw $t6, -124($t8)
     sw $t6, -120($t8)
     sw $t6, -116($t8)
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_S_270: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 2               # Label Tetromino_S for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -3
+    addi $t5, $t5, 0
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 4, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 0                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -1                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, -4($t8)
+    sw $t6, 128($t8)
+    sw $t6, 124($t8)
+    sw $t6, -128($t8)
+    sw $t6, -132($t8)
+    sw $t6, -256($t8)
+    sw $t6, -260($t8)
+    
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_Z: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 3               # Label Tetromino_S for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 4, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, 8($t8)
+    sw $t6, 12($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    sw $t6, -120($t8)
+    sw $t6, -116($t8)
+    jr $ra                  # Return from subroutine
+    
+  
+draw_tetromino_Z_90: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 3               # Label Tetromino_S for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 4, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 0                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, ($t8)
+    sw $t6, 4($t8)
+    sw $t6, 128($t8)
+    sw $t6, 132($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    sw $t6, -256($t8)
+    sw $t6, -252($t8)
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_Z_180: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 3               # Label Tetromino_S for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+
+    addi $t4, $t4, -4
+    addi $t5, $t5, 2
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 4, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, 8($t8)
+    sw $t6, 12($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    sw $t6, -120($t8)
+    sw $t6, -116($t8)
+    jr $ra                  # Return from subroutine
+    
+draw_tetromino_Z_270: #subroutine to draw square tetromino
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 3               # Label Tetromino_S for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -2
+    addi $t5, $t5, -2
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 4, continue_y  # If Y loop counter < 8, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 0                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, ($t8)
+    sw $t6, 4($t8)
+    sw $t6, 128($t8)
+    sw $t6, 132($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    sw $t6, -256($t8)
+    sw $t6, -252($t8)
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_L:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 4               # Label Tetromino_L for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 5                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_L_90:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 4               # Label Tetromino_L for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 0                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+
+draw_tetromino_L_180:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 4               # Label Tetromino_L for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 1                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+    
+
+draw_tetromino_L_270:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 4               # Label Tetromino_L for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 1
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 2, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    bgt $t7, -6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    subi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, -1                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -1                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_J:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 5               # Label Tetromino_J for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 5                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+ draw_tetromino_J_90:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 5               # Label Tetromino_L for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 6
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, -1                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 0                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_J_180:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 5               # Label Tetromino_L for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -2
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 1                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_J_270:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 5               # Label Tetromino_L for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 1
+    addi $t5, $t5, 2
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 2, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    bgt $t7, -6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    subi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -1                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    jr $ra                  # Return from subroutine
+   
+
+
+
+draw_tetromino_T: #subroutine to draw square tetromino    
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 6               # Label Tetromino_J for identification
+    li $s3, 0               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+
+draw_tetromino_T_90:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 6               # Label Tetromino_L for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 2
+    addi $t5, $t5, 0
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, -2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_T_180:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 6               # Label Tetromino_L for identification
+    li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -4
+    addi $t5, $t5, 4
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 2, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 6, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, -1                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2               # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+
+    jr $ra                  # Return from subroutine
+
+draw_tetromino_T_270:
+    lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
+    lw $t4, OTetrominoX     # Load the X-coordinate
+    lw $t5, OTetrominoY     # Load the Y-coordinate
+    lw $s4, OTetrominoX     # Loaded X-Coordinate to saved values
+    lw $s5, OTetrominoY     # Loaded Y-Coordinate to saved values
+    lw $t6, BlockColor      # Load the block color
+    li $s2, 6               # Label Tetromino_L for identification
+    li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, -2
+    addi $t5, $t5, 0
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loop:
+    blt $t8, 6, continue_y  # If Y loop counter < 6, continue
+    j end_y_loop            # Else, jump to the end of Y loop
+continue_y:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loop:
+    blt $t7, 2, continue_x  # If X loop counter < 2, continue
+    j end_x_loop            # Else, jump to the end of X loop
+continue_x:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loop                # Jump back to the start of the X loop
+end_x_loop:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loop                # Jump back to the start of the Y loop
+end_y_loop:
+    # Draw the foot of the L
+    # Set the Y position for the foot; it's one unit below the last row of the main body
+    li $t8, 3                # Y offset foot
+    add $t8, $t5, $t8        # Add from Y = Y + initial position
+    mult $t8, $t8, 32        # Get actual Y offset (row = 32)
+    li $t2, 2                # X offset foot
+    add $t2, $t2, $t4        # Add from X = X + initial position
+    add $t8, $t2, $t8        # Actual coordinate = x + y
+    mult $t8, $t8, 4         # Convert to byte offset
+    add $t8, $t0, $t8        # Add to the base address
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, -128($t8)
+    sw $t6, -124($t8)
+    
+
     jr $ra                  # Return from subroutine
