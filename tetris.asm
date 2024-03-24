@@ -30,9 +30,6 @@ ADDR_KBRD:
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
-# Define an array to store tuples
-tupleArray: .space 16       # Each tuple occupies 4 words, so 4 * 4 = 16 bytes
-                            # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
 # Major variables:
     # lw $s0 for paint (sw)
     # li $s1 for paint counter (need this for general use)
@@ -51,7 +48,25 @@ main:
     lw $s7, ADDR_KBRD
     # Initialize the game
     jal init_grid
+    
+    # Using stack as if list of tuples:
+    # Define an array to store tuples
+    # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
+                            # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
+    # Allocate space on the stack to store additional variables
+    addi $sp, $sp, -16      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
+    # Check if stack is empty
+    # Assuming $sp is already pointing to the stack top
+    lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
+    beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
+    
+    # If stack is not empty, load values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t2
+    lw $t3, 4($sp)          # Load value from above $s10 into $t3
+    lw $t4, 8($sp)          # Load value from above $s11 into $t4
+    lw $t5, 12($sp)         # Load value from above $s12 into $t5
+
 	# 1a. Check if key has been pressed
 	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
 	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
@@ -59,8 +74,7 @@ game_loop:
     move $t0, $s7               # $t0 = base address for keyboard
     lw $t8, 0($t0)                  # Load the first word from the keyboard
     beq $t8, 1, keyboard_input      # Branch to keyboard_input if the first word is equal to 1
-    b game_loop                          # Branch back to main if the key is not pressed
-    
+
     # 1b. Check which key has been pressed
     # Refer to function named "keyboard_input"
     
@@ -70,7 +84,23 @@ game_loop:
 	# 4. Sleep
 
     #5. Go back to 1
-    b main
+    b game_loop                          # Branch back to main if the key is not pressed
+
+
+stack_empty:
+    # If stack is empty, store new values onto the stack
+    # Each tuple consists of four words: s2, s3, s4, s5
+    # Storing values
+    li $t2, 1                # Value for s2
+    li $t3, 0                # Value for s3
+    li $t4, 14               # Value for s4
+    li $t5, 2               # Value for s5
+    # Store values onto the stack
+    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
+    sw $t3, 4($sp)         # Store value of $s11 above $s10
+    sw $t4, 8($sp)         # Store value of $s12 above $s11
+    sw $t5, 12($sp)        # Store value of $s13 above $s12
+    j load_saved
 
 
 ##############################################################################
@@ -88,99 +118,59 @@ keyboard_input:
     
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
-    
-    jal init_grid
-    li $s4, 4
-    li $s5, 0
-    move $t0, $s0        # Load the base address of the display into $t0
-    jal draw_tetromino_T_270
+    beq $v0, 1, mutation
 
     # TODO
     # ...
     # If a0 is A WASD, ...
-    b game_loop                          # Branch back to game loop
+
 
 respond_to_Q:
     li $v0, 10                      # Load immediate: $v0 = 10 (code for exit)
     syscall                         # Perform system call to terminate the program gracefully
 
-
+# Function for Mutation and Load Saved
 ##############################################################################
-# Function for rotate
-##############################################################################
-rotate: 
-    # Check $s2 = 0
-    beq $s2, $zero, draw_tetromino_O
-    
-    # Check $s2 = 1
-    beq $s2, 1, check_s2_equals_1
-    
-    # Check $s2 = 2
-    beq $s2, 2, check_s2_equals_2
-    
-    # Check $s2 = 3
-    beq $s2, 3, check_s2_equals_3
-    
-    # Check $s2 = 4
-    beq $s2, 4, check_s2_equals_4
-    
-    # Check $s2 = 5
-    beq $s2, 5, check_s2_equals_5
-    
-    # Check $s2 = 6
-    beq $s2, 6, check_s2_equals_6
-    
-    # Add any additional checks here
-    j end_rotate # Jump to end if none of the above conditions are met
-    
-    check_s2_equals_1:
-        # Check $s3 values under $s2 = 1
-        beq $s3, $zero, draw_tetromino_I_90
-        beq $s3, 1, draw_tetromino_I_180
-        beq $s3, 2, draw_tetromino_I_270
-        beq $s3, 3, draw_tetromino_I
-    
-    check_s2_equals_2:
-        # Check $s3 values under $s2 = 2
-        beq $s3, $zero, draw_tetromino_S_90
-        beq $s3, 1, draw_tetromino_S_180
-        beq $s3, 2, draw_tetromino_S_270
-        beq $s3, 3, draw_tetromino_S
-        j end_rotate # Jump to end if none of the above conditions are met
-    
-    check_s2_equals_3:
-        # Check $s3 values under $s2 = 3
-        beq $s3, $zero, draw_tetromino_Z_90
-        beq $s3, 1, draw_tetromino_Z_180
-        beq $s3, 2, draw_tetromino_Z_270
-        beq $s3, 3, draw_tetromino_Z
-        j end_rotate # Jump to end if none of the above conditions are met
-    
-    check_s2_equals_4:
-        # Check $s3 values under $s2 = 4
-        beq $s3, $zero, draw_tetromino_L_90
-        beq $s3, 1, draw_tetromino_L_180
-        beq $s3, 2, draw_tetromino_L_270
-        beq $s3, 3, draw_tetromino_L
-        j end_rotate # Jump to end if none of the above conditions are met\
-    
-    check_s2_equals_5:
-        # Check $s3 values under $s2 = 5
-        beq $s3, $zero, draw_tetromino_J_90
-        beq $s3, 1, draw_tetromino_J_180
-        beq $s3, 2, draw_tetromino_J_270
-        beq $s3, 3, draw_tetromino_J
-        j end_rotate # Jump to end if none of the above conditions are met
-    
-    check_s2_equals_6:
-        # Check $s3 values under $s2 = 6
-        beq $s3, $zero, draw_tetromino_T_90
-        beq $s3, 1, draw_tetromino_T_180
-        beq $s3, 2, draw_tetromino_T_270
-        beq $s3, 3, draw_tetromino_T
-        j end_rotate # Jump to end if none of the above conditions are met
-end_rotate:
-    jr $ra
+mutation:
+    move $t0, $s7               # $t0 = base address for keyboard
+    # Retrieve values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
+    lw $t3, 4($sp)          # Load value from above $s10 into $t1
+    lw $t4, 8($sp)          # Load value from above $s11 into $t2
+    lw $t5, 12($sp)         # Load value from above $s12 into $t3
+    #################
+    # if A:97, sub t4 with 1
+    beq $a0, 97, sub_x_1
+    # elif D:100, add t4 with 1
+    beq $a0, 100, add_x_1
+    j game_loop
+sub_x_1:
+    subi $t4, $t4, 2
+    j update
+add_x_1:
+    addi $t4, $t4, 2
+    j update
+update:
+    # Store values onto the stack
+    sw $t2, 0($sp)         # Store value of $s10 at the bottom of the allocated space
+    sw $t3, 4($sp)         # Store value of $s11 above $s10
+    sw $t4, 8($sp)         # Store value of $s12 above $s11
+    sw $t5, 12($sp)        # Store value of $s13 above $s12
+load_saved:
+    jal init_grid
+    #################
+    # Retrieve values from the stack
+    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
+    lw $t3, 4($sp)          # Load value from above $s10 into $t1
+    lw $t4, 8($sp)          # Load value from above $s11 into $t2
+    lw $t5, 12($sp)         # Load value from above $s12 into $t3
+    #################
+    move $s4, $t4
+    move $s5, $t5
+    move $t0, $s0        # Load the base address of the display into $t0
+    jal draw_tetromino_Z
+    #################
+    b game_loop                          # Branch back to game loop
 
 ##############################################################################
 # Function for Init Grid
@@ -322,6 +312,88 @@ exit_init_grid:
     sub $s0, $s0, $s1       # Subtract to get initial offset
     li $s1, 0
     jr $ra                  # Return from subroutine
+
+
+
+
+##############################################################################
+# Function for rotate
+##############################################################################
+rotate: 
+    # Check $s2 = 0
+    beq $s2, $zero, draw_tetromino_O
+    
+    # Check $s2 = 1
+    beq $s2, 1, check_s2_equals_1
+    
+    # Check $s2 = 2
+    beq $s2, 2, check_s2_equals_2
+    
+    # Check $s2 = 3
+    beq $s2, 3, check_s2_equals_3
+    
+    # Check $s2 = 4
+    beq $s2, 4, check_s2_equals_4
+    
+    # Check $s2 = 5
+    beq $s2, 5, check_s2_equals_5
+    
+    # Check $s2 = 6
+    beq $s2, 6, check_s2_equals_6
+    
+    # Add any additional checks here
+    j end_rotate # Jump to end if none of the above conditions are met
+    
+    check_s2_equals_1:
+        # Check $s3 values under $s2 = 1
+        beq $s3, $zero, draw_tetromino_I_90
+        beq $s3, 1, draw_tetromino_I_180
+        beq $s3, 2, draw_tetromino_I_270
+        beq $s3, 3, draw_tetromino_I
+    
+    check_s2_equals_2:
+        # Check $s3 values under $s2 = 2
+        beq $s3, $zero, draw_tetromino_S_90
+        beq $s3, 1, draw_tetromino_S_180
+        beq $s3, 2, draw_tetromino_S_270
+        beq $s3, 3, draw_tetromino_S
+        j end_rotate # Jump to end if none of the above conditions are met
+    
+    check_s2_equals_3:
+        # Check $s3 values under $s2 = 3
+        beq $s3, $zero, draw_tetromino_Z_90
+        beq $s3, 1, draw_tetromino_Z_180
+        beq $s3, 2, draw_tetromino_Z_270
+        beq $s3, 3, draw_tetromino_Z
+        j end_rotate # Jump to end if none of the above conditions are met
+    
+    check_s2_equals_4:
+        # Check $s3 values under $s2 = 4
+        beq $s3, $zero, draw_tetromino_L_90
+        beq $s3, 1, draw_tetromino_L_180
+        beq $s3, 2, draw_tetromino_L_270
+        beq $s3, 3, draw_tetromino_L
+        j end_rotate # Jump to end if none of the above conditions are met\
+    
+    check_s2_equals_5:
+        # Check $s3 values under $s2 = 5
+        beq $s3, $zero, draw_tetromino_J_90
+        beq $s3, 1, draw_tetromino_J_180
+        beq $s3, 2, draw_tetromino_J_270
+        beq $s3, 3, draw_tetromino_J
+        j end_rotate # Jump to end if none of the above conditions are met
+    
+    check_s2_equals_6:
+        # Check $s3 values under $s2 = 6
+        beq $s3, $zero, draw_tetromino_T_90
+        beq $s3, 1, draw_tetromino_T_180
+        beq $s3, 2, draw_tetromino_T_270
+        beq $s3, 3, draw_tetromino_T
+        j end_rotate # Jump to end if none of the above conditions are met
+end_rotate:
+    jr $ra
+
+
 
 ##############################################################################
 # Function for Tetromino
