@@ -25,8 +25,8 @@ ADDR_KBRD:
 ##############################################################################
 # Mutable Data
 ##############################################################################
-OTetrominoX: .word 4  # Sample X coordinate
-OTetrominoY: .word 4   # Sample Y coordinate
+# OTetrominoX: .word 4  # Sample X coordinate
+# OTetrominoY: .word 4   # Sample Y coordinate
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 PIXEL: .word 2 # each pixel heigh and width
@@ -48,6 +48,8 @@ PIXEL: .word 2 # each pixel heigh and width
 
 	# Run the Tetris game.
 main:
+    li $s4, 4
+    li $s5, 4
 
     lw $t0, ADDR_DSPL        # Load the base address of the display into $t0
     jal draw_tetromino_S
@@ -58,8 +60,8 @@ main:
     
 draw_tetromino_O:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -99,8 +101,8 @@ end_y_loopO:
 
 draw_tetromino_I:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -140,8 +142,8 @@ end_y_loopI:
     
 draw_tetromino_L:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -196,8 +198,8 @@ end_y_loopL:
 
 draw_tetromino_J:
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -253,8 +255,8 @@ end_y_loopJ:
 
 draw_tetromino_T: #subroutine to draw square tetromino    
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -306,8 +308,8 @@ end_y_loopT:
 
 draw_tetromino_S: #subroutine to draw square tetromino
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
@@ -364,8 +366,8 @@ end_y_loopS:
 
 draw_tetromino_Z: #subroutine to draw square tetromino
     lw $t0, ADDR_DSPL       # Load the base address of the display into $t0
-    lw $t4, OTetrominoX     # Load the X-coordinate
-    lw $t5, OTetrominoY     # Load the Y-coordinate
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
     # Calculate the initial offset
