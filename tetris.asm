@@ -9,41 +9,129 @@ ADDR_DSPL:
 # The address of the keyboard. Don't forget to connect it!
 ADDR_KBRD:
     .word 0xffff0000
-    
+
+# Random
+SEED:
+    .word 12345
+CONSTANT1:
+    .word 1103515245
+CONSTANT2:
+    .word 12345
+
     .text
 	.globl main
-	.globl init_grid
-    .globl draw_pixel
-    .globl draw_tetromino_O
-    .globl draw_tetromino_L
-    .globl draw_tetromino_J
-    .globl draw_tetromino_T
-    .globl draw_tetromino_S
-    .globl draw_tetromino_Z
-    .globl draw_tetromino_I
-    
+	# .globl init_grid
+    # .globl draw_pixel
+    # .globl draw_tetromino_O
+    # .globl draw_tetromino_L
+    # .globl draw_tetromino_J
+    # .globl draw_tetromino_T
+    # .globl draw_tetromino_S
+    # .globl draw_tetromino_Z
+    # .globl draw_tetromino_I
+
 ##############################################################################
 # Mutable Data
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
-BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
-PIXEL: .word 2 # each pixel heigh and width
+# BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
+# PIXEL: .word 2 # each pixel heigh and width
+# Define an array to store tuples
+tupleArray: .space 16       # Each tuple occupies 4 words, so 4 * 4 = 16 bytes
+                            # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
+# Major variables:
+    # lw $s0 for paint (sw)
+    # li $s1 for paint counter (need this for general use)
+    # li $s2 for what TETRO, ex) O, J, T, using int; refer to image.
+    # li $s3 for what ANGLE ex) 0 is default, 1 is one 90 roration upto 3.
+    # li $s4 OTetrominoX
+    # li $s5 OTetrominoY
+
+
+
 
 
 	# Run the Tetris game.
 main:
+    # Initialize the game
     jal init_grid
-    li $s4, 4
-    li $s5, 4
-    move $t0, $s0        # Load the base address of the display into $t0
-    jal draw_tetromino_S
+
+game_loop:
+    # li $s4, 4
+    # li $s5, 6
+    # move $t0, $s0        # Load the base address of the display into $t0
+    # jal draw_tetromino_Z
     
+       # Load the seed value
+    lw $t0, SEED
+    
+    # Generate a random number
+    jal random
+    
+    # Ensure the random number is in the range [0, 6]
+    andi $t1, $v0, 0x7    # Mask out all but the lowest 3 bits
+    
+    # Print the random number
+    move $a0, $t1         # Set $a0 to the random number to print
+    li $v0, 1             # Set syscall number for printing integer
+    syscall
+    
+    # Exit the program gracefully
+    li $v0, 10
+    syscall
     # Exit syscall
     li $v0, 10
     syscall
+
+
+	# 1a. Check if key has been pressed
+	
+	
+	
+    # 1b. Check which key has been pressed
+    # 2a. Check for collisions
+	# 2b. Update locations (paddle, ball)
+	# 3. Draw the screen
+	# 4. Sleep
+
+    #5. Go back to 1
+    b game_loop
+
+
+##############################################################################
+# Function for Random
+##############################################################################
+# Pseudo-random number generator function
+random:
+    # Simple arithmetic operations to generate the next pseudo-random number
+    lw $t2, SEED          # Load the seed into $t2
+    lw $t1, CONSTANT1     # Load constant 1
+    mul $t2, $t2, $t1     # Multiply the seed by a constant
+    lw $t1, CONSTANT2     # Load constant 2
+    add $t2, $t2, $t1     # Add another constant
+    sw $t2, SEED          # Store the updated seed
     
+    # Return the pseudo-random number
+    move $v0, $t2
+    jr $ra
+
+
+##############################################################################
+# Function for Keyboard
+##############################################################################
+keyboard_input:
+    lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
+    beq $t8, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was pressed
+    li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
+    syscall                         # Perform system call to print the value in $a0
+    b main                          # Branch back to main
+
+respond_to_Q:
+    li $v0, 10                      # Load immediate: $v0 = 10 (code for exit)
+    syscall                         # Perform system call to terminate the program gracefully
+
 
 
 
@@ -74,12 +162,6 @@ paint_loop:
     li $t4, 0               # Next time, paint DARK grey
     j paint_loop_end        # b or j is used to jump to different branch
                             # Here this continues to the next pixel
-
-    # OLD CODE that I want to keep here:
-    # lw $s0, ADDR_DSPL       # $s0 = base address for display
-    # sw $t1, 0($s0)          # paint the first unit (i.e., top-left) red
-    # sw $t2, 4($s0)          # paint the second unit on the first row green
-    # sw $t3, 128($s0)        # paint the first unit on the second row blue
 paint_dark_grey:
     sw $t1, 0($s0)              # Paint dark grey
     addi $t3, $t3, 1            # Increment loop counter: t3 += 1
