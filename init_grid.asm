@@ -110,19 +110,22 @@ left_wall:
     j left_wall
 wall_initR:
     # INIT
-    li $t1, 121             # Col counter
+    li $t1, 104             # Col counter
     li $t2, 0               # Row counter
     sub $t0, $t0, $t9       # Subtract to get initial offset
     li $t9, 0
+    
+    add $t0, $t0, $t1
+    add $t9, $t9, $t1
     j right_wall
 reset_rowR:
     li $t2, 0
-    addi $t1, $t1, 1
+    addi $t1, $t1, 4
     sub $t0, $t0, $t9       # Subtract to get initial offset
     li $t9, 0
-    mul $t5, $t1, 4              # 4*col
-    add $t0, $t0, $t5
-    add $t9, $t9, $t5
+    
+    add $t0, $t0, $t1
+    add $t9, $t9, $t1
 right_wall:
     beq $t1, 128, exit          # For loop
     beq $t2, 129, reset_rowR
