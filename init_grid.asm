@@ -160,5 +160,7 @@ bottom_wall:
     addi $s1, $s1, 128
     j bottom_wall
 exit:
+    sub $s0, $s0, $s1       # Subtract to get initial offset
+    li $s1, 0
     li $v0, 10              # terminate the program gracefully
     syscall
