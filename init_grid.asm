@@ -96,11 +96,12 @@ reset_rowL:
     li $t2, 0
     addi $t1, $t1, 1
     sub $t0, $t0, $t9       # Subtract to get initial offset
+    li $t9, 0
     mul $t5, $t1, 4              # 4*col
     add $t0, $t0, $t5
     add $t9, $t9, $t5
 left_wall:
-    beq $t1, 17, right_wall          # For loop
+    beq $t1, 6, right_wall          # For loop
     beq $t2, 129, reset_rowL
     sw $t8, 0($t0)
     addi $t2, $t2, 1
