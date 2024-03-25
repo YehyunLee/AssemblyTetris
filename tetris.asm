@@ -43,6 +43,7 @@ BrightGrey: .word 0xC0C0C0 # Background color
     # li $s5 OTetrominoY
     # lw $s6, ADDR_DSPL
     # lw $s7, ADDR_KBRD
+    # a3 for collision
 
 	# Run the Tetris game.
 main:
