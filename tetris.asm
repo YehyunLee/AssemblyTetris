@@ -61,7 +61,7 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -16      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -64      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
     # OLD CODE
     # Check if stack is empty
@@ -69,6 +69,7 @@ game_loop:
     # lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
     # beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
 new_tetromino:
+    li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
     li $t2, 4                # Value for s2
@@ -88,6 +89,7 @@ create_tetromino:
 
     j load_saved
     returned_create_tetromino:
+        beq $a3, 4, new_tetromino
         jal wait_keyboard
 
     #5. Go back to 1
@@ -150,7 +152,7 @@ load_loopT:
 exit_load_savedT:
     jr $ra                      # Return from subroutine
 
-
+# LOAD CURRENT TETROMINOES
 load_saved:
     jal init_grid               # Initialize the grid if needed
 
@@ -291,10 +293,12 @@ handle_rotation:
     j update
 sub_y_2:  # ADDED FOR COLLISION EXIT
     subi $t5, $t5, 2
+    li $a3, 4
     j update
 handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     subi $t3, $t3, 1
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
+    li $a3, 4
     j update
 update:
     # Store values onto the stack
