@@ -71,7 +71,7 @@ game_loop:
 new_tetromino:
     jal load_savedT
 create_tetromino:
-    li $t2, 4                # Value for s2
+    li $t2, 3                # Value for s2
     li $t3, 0                # Value for s3
     li $t4, 14               # Value for s4
     li $t5, 2               # Value for s5
@@ -442,7 +442,7 @@ draw_tetromino:
     bne $a0, $zero, continue_draw_tetromino  # If $a0 is not 0, skip the decrementing part
 
     # Decrement $t3 by 1
-    addi $t3, $t3, -1
+    addi $t3, $t3, 0
 
     # Modulo $t3 by 4 to ensure it wraps around from 0 to 3
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
@@ -711,7 +711,7 @@ draw_tetromino_I_270:
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 0
+    addi $t4, $t4, 1
     addi $t5, $t5, 6
     
     # Calculate the initial offset
@@ -1411,7 +1411,7 @@ draw_tetromino_T_90:
     
     # Offset X and Y for rotation
     addi $t4, $t4, 2
-    addi $t5, $t5, 0
+    addi $t5, $t5, 2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1558,7 +1558,7 @@ draw_tetromino_T_270:
     
     # Offset X and Y for rotation
     addi $t4, $t4, -2
-    addi $t5, $t5, 0
+    addi $t5, $t5, -2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1633,6 +1633,10 @@ draw_tetromino_S: #subroutine to draw square tetromino
     mul $t2, $t5, $t1       # Y offset in terms of display width
     add $t9, $t4, $t2       # Combine X and Y offsets
     
+    # Offset X and Y for rotation
+    addi $t4, $t4, -4
+    addi $t5, $t5, 0
+    
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
 y_loopS:
     blt $t8, 2, continue_yS  # If Y loop counter < 8, continue
@@ -1662,7 +1666,7 @@ end_x_loopS:
     addi $t8, $t8, 1        # Increment Y loop counter
     j y_loopS                # Jump back to the start of the Y loop
 end_y_loopS:
-    li $t8, 3                # Y offset foot
+    li $t8, -2                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
     li $t2, 2                # X offset foot
@@ -1671,31 +1675,31 @@ end_y_loopS:
     mult $t8, $t8, 4         # Convert to byte offset
     add $t8, $t0, $t8        # Add to the base address
     
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    # lw $a1, BlockColor      # Set $a1 to check for Red
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 8($t8)
     sw $t6, 12($t8)
-    sw $t6, -128($t8)
-    sw $t6, -124($t8)
-    sw $t6, -120($t8)
-    sw $t6, -116($t8)
+    # sw $t6, -128($t8)
+    # sw $t6, -124($t8)
+    # sw $t6, -120($t8)
+    # sw $t6, -116($t8)
     jr $ra                  # Return from subroutine
 
 
@@ -1917,23 +1921,23 @@ end_y_loopS_270:
     mult $t8, $t8, 4         # Convert to byte offset
     add $t8, $t0, $t8        # Add to the base address
     
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -1256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -1260($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    # lw $a1, BlockColor      # Set $a1 to check for Red
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -1256($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    # lw $a0, -1260($t8)          # Load the current color at the calculated address into $a0
+    # beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t8)
     sw $t6, -4($t8)
     sw $t6, 128($t8)
@@ -1950,6 +1954,12 @@ draw_tetromino_Z: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
+    li $s2, 3               # Label Tetromino_S for identification
+    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
+    
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1958,14 +1968,14 @@ draw_tetromino_Z: #subroutine to draw square tetromino
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
 y_loopZ:
-    blt $t8, 2, continue_yZ  # If Y loop counter < 8, continue
-    j end_y_loopS            # Else, jump to the end of Y loop
-continue_yZ:
+    blt $t8, 2, continue_y_loopZ  # If Y loop counter < 8, continue
+    j end_y_loopZ            # Else, jump to the end of Y loop
+continue_y_loopZ:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
 x_loopZ:
-    blt $t7, 4, continue_xZ  # If X loop counter < 2, continue
+    blt $t7, 4, continue_x_loopZ  # If X loop counter < 2, continue
     j end_x_loopZ            # Else, jump to the end of X loop
-continue_xZ:
+continue_x_loopZ:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -1980,12 +1990,12 @@ continue_xZ:
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopZ                # Jump back to the start of the X loop
+    j x_loopZ               # Jump back to the start of the X loop
 end_x_loopZ:
     addi $t8, $t8, 1        # Increment Y loop counter
     j y_loopZ                # Jump back to the start of the Y loop
 end_y_loopZ:
-    li $t8, 3                # Y offset foot
+    li $t8, 2                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
     li $t2, 2                # X offset foot
@@ -1993,31 +2003,33 @@ end_y_loopZ:
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
     add $t8, $t0, $t8        # Add to the base address
-    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -8($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -12($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -16($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -136($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -140($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 136($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -144($t8)          # Load the current color at the calculated address into $a0
+    lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
-    sw $t6, -4($t8)
-    sw $t6, -8($t8)
-    sw $t6, -12($t8)
-    sw $t6, -16($t8)
-    sw $t6, -132($t8)
-    sw $t6, -136($t8)
-    sw $t6, -140($t8)
-    sw $t6, -144($t8)
+    sw $t6, 0($t8)
+    sw $t6, 4($t8)
+    sw $t6, 8($t8)
+    sw $t6, 12($t8)
+    sw $t6, 128($t8)
+    sw $t6, 132($t8)
+    sw $t6, 136($t8)
+    sw $t6, 140($t8)
+    
     jr $ra                  # Return from subroutine
 
 
@@ -2069,7 +2081,7 @@ end_y_loopZ_90:
     li $t8, 0                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, 2                # X offset foot
+    li $t2, -2                # X offset foot
     add $t2, $t2, $t4        # Add from X = X + initial position
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
@@ -2194,7 +2206,7 @@ draw_tetromino_Z_270: #subroutine to draw square tetromino
     
     # Offset X and Y for rotation
     addi $t4, $t4, -2
-    addi $t5, $t5, -2
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
