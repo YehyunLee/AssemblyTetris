@@ -141,7 +141,7 @@ load_loopT:
     # Check if there are more tetrominos to load
     lw $t1, NumTetrominos
     beq $a2, $t1, exit_load_savedT
-
+    ## I think we should call draw_tetromino here if there's tetromino's to draw
     # Increment the index counter
     addi $a2, $a2, 1            # Increment index counter
 
@@ -269,9 +269,8 @@ add_y_2:
     addi $t5, $t5, 2
     j update
 handle_rotation:
-    li $a0, 1
-    jal draw_tetromino
-    li $a0, 0
+    addi $t3, $t3, 1
+    andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
     j update
 update:
     # Store values onto the stack
@@ -614,8 +613,6 @@ draw_tetromino_I_90:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
-    li $s2, 1               # Label Tetromino_I for identification
-    li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
     addi $t4, $t4, 0
@@ -628,14 +625,14 @@ draw_tetromino_I_90:
     
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
 y_loopI_90:
-    blt $t8, 2, continue_y_loopI_90  # If Y loop counter < 2, continue
-    j end_y_loop            # Else, jump to the end of Y loop
-continue_y_loopI_90:
+    blt $t8, 2, continue_yI_90  # If Y loop counter < 8, continue
+    j end_y_loopI_90            # Else, jump to the end of Y loop
+continue_yI_90:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
 x_loopI_90:
-    blt $t7, 8, continue_x_loopI_90  # If X loop counter < 2, continue
-    j end_x_loop            # Else, jump to the end of X loop
-continue_x_loopI_90:
+    blt $t7, 8, continue_xI_90  # If X loop counter < 2, continue
+    j end_x_loopI_90            # Else, jump to the end of X loop
+continue_xI_90:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
     add $t2, $t7, $t9       # Current X offset including base X and Y offsets
@@ -650,10 +647,10 @@ continue_x_loopI_90:
     
     addi $t7, $t7, 1        # Increment X loop counter
     j x_loopI_90                # Jump back to the start of the X loop
-end_x_loop:
+end_x_loopI_90:
     addi $t8, $t8, 1        # Increment Y loop counter
     j y_loopI_90                # Jump back to the start of the Y loop
-end_y_loop:
+end_y_loopI_90:
     jr $ra                  # Return from subroutine
 
 
@@ -676,12 +673,12 @@ draw_tetromino_I_180:
     li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
 y_loopI_180:
     blt $t8, 8, continue_yloopI_180  # If Y loop counter < 2, continue
-    j end_y_loop            # Else, jump to the end of Y loop
+    j end_y_loopI_180            # Else, jump to the end of Y loop
 continue_yloopI_180:
     li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
 x_loopI_180:
     blt $t7, 2, continue_x_loopI_180  # If X loop counter < 2, continue
-    j end_x_loop            # Else, jump to the end of X loop
+    j end_x_loopI_180            # Else, jump to the end of X loop
 continue_x_loopI_180:
     # Calculate the offset for each pixel
     mul $t3, $t8, $t1       # Y offset for the current row
