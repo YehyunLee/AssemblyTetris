@@ -322,7 +322,11 @@ exit_init_grid:
 ##############################################################################
 # Function for drawing new tetoromino
 ##############################################################################
-draw_tetromino: 
+draw_tetromino:
+    # To draw, current shape, let a_0 = 0.
+    # To draw, next shape, let a_0 = 1.
+    # AND handle mutation of sp stack outside this function depending on what we call.
+
     # Assuming that $a0 gets passed as 1 when "W" is pressed and "0" when not pressed
     # Check if $a0 = 0
     bne $a0, $zero, continue_draw_tetromino  # If $a0 is not 0, skip the decrementing part
