@@ -189,16 +189,26 @@ load_saved_exit:
     j returned_create_tetromino
 
 
-
+# This use a3
 collision_code:
-    mul $t6, $a2, 16            # Each tetromino information occupies 4 words (16 bytes)  # here
-
-
-
-
-
-
-
+    # Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
+    beq $a3, 0, handle_0
+    beq $a3, 1, handle_1
+    beq $a3, 2, handle_2
+    beq $a3, 3, handle_3
+    handle_0:
+        li $a0, 100
+        j mutation
+    handle_1:
+        li $a0, 97
+        j mutation
+    handle_2:
+        li $a0, 128
+        j mutation
+    handle_3:
+        li $a0, 129
+        j mutation
+    j respond_to_Q  # Unexpected error
 
 
 ##############################################################################
@@ -256,20 +266,34 @@ mutation:
     beq $a0, 119, handle_rotation
     # S 115
     beq $a0, 115, add_y_2
-
+    beq $a0, 128, sub_y_2  # ADDED FOR COLLISION EXIT
+    beq $a0, 129, handle_revert_rotation  # ADDED FOR COLLISION EXIT
+    
     j game_loop
 
+# Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
 sub_x_2:
     subi $t4, $t4, 2
+    li $a3, 0
     j update
 add_x_2:
     addi $t4, $t4, 2
+    li $a3, 1
     j update
 add_y_2:
     addi $t5, $t5, 2
+    li $a3, 2
     j update
 handle_rotation:
     addi $t3, $t3, 1
+    andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
+    li $a2, 3
+    j update
+sub_y_2:  # ADDED FOR COLLISION EXIT
+    subi $t5, $t5, 2
+    j update
+handle_revert_rotation:  # ADDED FOR COLLISION EXIT
+    subi $t3, $t3, 1
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
     j update
 update:
