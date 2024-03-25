@@ -317,9 +317,20 @@ exit_init_grid:
 
 
 ##############################################################################
-# Function for rotate
+# Function for drawing new tetoromino
 ##############################################################################
-rotate: 
+draw_tetromino: 
+    # Assuming that $a0 gets passed as 1 when "W" is pressed and "0" when not pressed
+    # Check if $a0 = 0
+    bne $a0, $zero, continue_draw_tetromino  # If $a0 is not 0, skip the decrementing part
+
+    # Decrement $t3 by 1
+    addi $t3, $t3, -1
+
+    # Modulo $t3 by 4 to ensure it wraps around from 0 to 3
+    andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
+
+continue_draw_tetromino:
     # Check $s2 = 0
     beq $s2, $zero, draw_tetromino_O
     
@@ -342,7 +353,7 @@ rotate:
     beq $s2, 6, check_s2_equals_6
     
     # Add any additional checks here
-    j end_rotate # Jump to end if none of the above conditions are met
+    j end_draw # Jump to end if none of the above conditions are met
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
@@ -350,6 +361,7 @@ rotate:
         beq $s3, 1, draw_tetromino_I_180
         beq $s3, 2, draw_tetromino_I_270
         beq $s3, 3, draw_tetromino_I
+        j end_draw # Jump to end if none of the above conditions are met
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
@@ -357,7 +369,7 @@ rotate:
         beq $s3, 1, draw_tetromino_S_180
         beq $s3, 2, draw_tetromino_S_270
         beq $s3, 3, draw_tetromino_S
-        j end_rotate # Jump to end if none of the above conditions are met
+        j end_draw # Jump to end if none of the above conditions are met
     
     check_s2_equals_3:
         # Check $s3 values under $s2 = 3
@@ -365,7 +377,7 @@ rotate:
         beq $s3, 1, draw_tetromino_Z_180
         beq $s3, 2, draw_tetromino_Z_270
         beq $s3, 3, draw_tetromino_Z
-        j end_rotate # Jump to end if none of the above conditions are met
+        j end_draw # Jump to end if none of the above conditions are met
     
     check_s2_equals_4:
         # Check $s3 values under $s2 = 4
@@ -373,7 +385,7 @@ rotate:
         beq $s3, 1, draw_tetromino_L_180
         beq $s3, 2, draw_tetromino_L_270
         beq $s3, 3, draw_tetromino_L
-        j end_rotate # Jump to end if none of the above conditions are met\
+        j end_draw # Jump to end if none of the above conditions are met\
     
     check_s2_equals_5:
         # Check $s3 values under $s2 = 5
@@ -381,7 +393,7 @@ rotate:
         beq $s3, 1, draw_tetromino_J_180
         beq $s3, 2, draw_tetromino_J_270
         beq $s3, 3, draw_tetromino_J
-        j end_rotate # Jump to end if none of the above conditions are met
+        j end_draw # Jump to end if none of the above conditions are met
     
     check_s2_equals_6:
         # Check $s3 values under $s2 = 6
@@ -389,8 +401,8 @@ rotate:
         beq $s3, 1, draw_tetromino_T_180
         beq $s3, 2, draw_tetromino_T_270
         beq $s3, 3, draw_tetromino_T
-        j end_rotate # Jump to end if none of the above conditions are met
-end_rotate:
+        j end_draw # Jump to end if none of the above conditions are met
+end_draw:
     jr $ra
 
 
