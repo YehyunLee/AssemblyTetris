@@ -287,7 +287,7 @@ add_y_2:
 handle_rotation:
     addi $t3, $t3, 1
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
-    li $a2, 3
+    li $a3, 3
     j update
 sub_y_2:  # ADDED FOR COLLISION EXIT
     subi $t5, $t5, 2
