@@ -71,7 +71,7 @@ game_loop:
 new_tetromino:
     jal load_savedT
 create_tetromino:
-    li $t2, 2                # Value for s2
+    li $t2, 1                # Value for s2
     li $t3, 0                # Value for s3
     li $t4, 14               # Value for s4
     li $t5, 2               # Value for s5
@@ -269,12 +269,9 @@ add_y_2:
     addi $t5, $t5, 2
     j update
 handle_rotation:
-    # li $a0, 1
-    # jal init_grid
-    # jal draw_tetromino
-    addi $t3, $t3, 1
-    andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
-    # li $a0, 0
+    li $a0, 1
+    jal draw_tetromino
+    li $a0, 0
     j update
 update:
     # Store values onto the stack
