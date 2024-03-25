@@ -26,8 +26,8 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0x000000 #Block Color of tetrominoes for now
-BorderColor: .word 0x000000 #Border Color of the game for now
+BlockColor: .word 0x363959 #Block Color of tetrominoes for now
+BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
@@ -374,7 +374,8 @@ paint_loop_end:
 
 wall_initL:
     # INIT
-    li $t8, 0x000000        # Black
+    # li $t8, 0x000000        # Black
+    lw $t8, BorderColor
     li $t1, 0               # Col counter
     li $t2, 0               # Row counter
     sub $s0, $s0, $s1       # Subtract to get initial offset
