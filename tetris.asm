@@ -21,7 +21,6 @@ ADDR_KBRD:
     # .globl draw_tetromino_S
     # .globl draw_tetromino_Z
     # .globl draw_tetromino_I
-
 ##############################################################################
 # Mutable Data
 ##############################################################################
@@ -30,6 +29,10 @@ ADDR_KBRD:
 BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
+NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
+DarkGrey: .word 0x808080 #Background color
+BrightGrey: .word 0xC0C0C0 # Background color
+
 # Major variables:
     # lw $s0 for paint (sw)
     # li $s1 for paint counter (need this for general use)
@@ -39,8 +42,6 @@ BlockColor: .word 0xff0000 #Block Color of tetrominoes for now
     # li $s5 OTetrominoY
     # lw $s6, ADDR_DSPL
     # lw $s7, ADDR_KBRD
-DarkGrey: .word 0x808080 #Background color
-BrightGrey: .word 0xC0C0C0 # Background color
 
 	# Run the Tetris game.
 main:
@@ -159,21 +160,67 @@ update:
     sw $t3, 4($sp)         # Store value of $s11 above $s10
     sw $t4, 8($sp)         # Store value of $s12 above $s11
     sw $t5, 12($sp)        # Store value of $s13 above $s12
+# load_saved:
+    # jal init_grid
+    # #################
+    # # Retrieve values from the stack
+    # lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
+    # lw $t3, 4($sp)          # Load value from above $s10 into $t1
+    # lw $t4, 8($sp)          # Load value from above $s11 into $t2
+    # lw $t5, 12($sp)         # Load value from above $s12 into $t3
+    # #################
+    # move $s2, $t2
+    # move $s3, $t3
+    # move $s4, $t4
+    # move $s5, $t5
+    # move $t0, $s0        # Load the base address of the display into $t0
+    # jal draw_tetromino_Z
+    # #################
+    # b game_loop                          # Branch back to game loop
+
+
 load_saved:
-    jal init_grid
-    #################
-    # Retrieve values from the stack
-    lw $t2, 0($sp)          # Load value from the bottom of the allocated space into $t0
-    lw $t3, 4($sp)          # Load value from above $s10 into $t1
-    lw $t4, 8($sp)          # Load value from above $s11 into $t2
-    lw $t5, 12($sp)         # Load value from above $s12 into $t3
-    #################
-    move $s4, $t4
-    move $s5, $t5
-    move $t0, $s0        # Load the base address of the display into $t0
-    jal draw_tetromino_Z
-    #################
-    b game_loop                          # Branch back to game loop
+    # Store the value 1 into the memory location represented by NumTetrominos
+    li $t0, 1            # Load the value 1 into a temporary register ($t0)
+    la $t1, NumTetrominos   # Load the address of NumTetrominos into another register ($t1)
+    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointed to by $t1
+    
+
+    jal init_grid               # Initialize the grid if needed
+
+    # Iterate through the stack and load tetromino information
+    li $a2, 0                   # Initialize index counter to 0
+load_loop:
+    # Calculate the offset for the current index
+    mul $t6, $a2, 16            # Each tetromino information occupies 4 words (16 bytes)
+    add $t6, $t6, $sp           # Calculate the stack address for the current index
+
+    # Retrieve values for the current tetromino from the stack
+    lw $t2, 0($t6)              # Load value for s2
+    lw $t3, 4($t6)              # Load value for s3
+    lw $t4, 8($t6)              # Load value for s4
+    lw $t5, 12($t6)             # Load value for s5
+
+    # Move loaded values to respective registers
+    move $s2, $t2               # s2 = loaded value for s2
+    move $s3, $t3               # s3 = loaded value for s3
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+
+    # Check if there are more tetrominos to load
+    lw $t1, NumTetrominos
+    beq $a2, $t1, game_loop   # Branch to load_loop if index is less than max_index
+
+    # Call draw_tetromino with $a0 set to 0 to draw the current tetromino
+    li $a0, 0                   # Set $a0 to 0 to draw the current shape
+    jal draw_tetromino
+    # Increment the index counter
+    addi $a2, $a2, 1            # Increment index counter
+
+    # Continue or exit the program
+    b load_loop                 # Branch back to the game loop
+
+
 
 ##############################################################################
 # Function for Init Grid
@@ -326,6 +373,8 @@ draw_tetromino:
     # To draw, current shape, let a_0 = 0.
     # To draw, next shape, let a_0 = 1.
     # AND handle mutation of sp stack outside this function depending on what we call.
+
+    move $t0, $s0        # Load the base address of the display into $t0
 
     # Assuming that $a0 gets passed as 1 when "W" is pressed and "0" when not pressed
     # Check if $a0 = 0
