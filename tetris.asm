@@ -27,7 +27,7 @@ ADDR_KBRD:
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
 BlockColor: .word 0x000000 #Block Color of tetrominoes for now
-BorderColor: .word 0x000000 #Block Color of tetrominoes for now
+BorderColor: .word 0x000000 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
