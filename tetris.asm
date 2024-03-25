@@ -27,6 +27,7 @@ ADDR_KBRD:
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
 BlockColor: .word 0x000000 #Block Color of tetrominoes for now
+BorderColor: .word 0x000000 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
@@ -585,6 +586,8 @@ continue_xO:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     
     sw $t6, 0($t2)          # Store the block color at the calculated address
     addi $t7, $t7, 1        # Increment X loop counter
@@ -626,6 +629,8 @@ continue_xI:
     add $t2, $t0, $t2       # Add to the base address
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
@@ -670,6 +675,8 @@ continue_xI_90:
     add $t2, $t0, $t2       # Add to the base address
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
@@ -718,6 +725,8 @@ continue_x_loopI_180:
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
@@ -768,6 +777,8 @@ continue_xloopI_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     subi $t7, $t7, 1        # Increment X loop counter
@@ -817,6 +828,10 @@ continue_x_loopL:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -845,6 +860,17 @@ end_y_loopL:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -891,6 +917,8 @@ continue_x_loopL_90:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -919,6 +947,17 @@ end_y_loopL_90:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -964,6 +1003,8 @@ continue_x_loopL_180:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -992,6 +1033,17 @@ end_y_loopL_180:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1038,6 +1090,8 @@ continue_x_loopL_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     subi $t7, $t7, 1        # Increment X loop counter
@@ -1066,6 +1120,17 @@ end_y_loopL_270:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1110,6 +1175,8 @@ continue_x_loopJ:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1138,6 +1205,17 @@ end_y_loopJ:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, -4($t8)
     sw $t6, 128($t8)
@@ -1183,6 +1261,8 @@ continue_x_loopJ_90:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1211,6 +1291,17 @@ end_y_loopJ_90:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1257,6 +1348,8 @@ continue_x_loopJ_180:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1285,6 +1378,17 @@ end_y_loopJ_180:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1331,6 +1435,8 @@ continue_x_loopJ_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     subi $t7, $t7, 1        # Increment X loop counter
@@ -1359,6 +1465,17 @@ end_y_loopJ_270:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1398,6 +1515,8 @@ continue_xT:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1424,6 +1543,17 @@ end_y_loopT:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1467,6 +1597,8 @@ continue_x_loopT_90:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1495,6 +1627,17 @@ end_y_loopT_90:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1542,6 +1685,8 @@ continue_x_loopT_180:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1570,6 +1715,17 @@ end_y_loopT_180:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor     # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1614,6 +1770,8 @@ continue_x_loopT_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1634,6 +1792,16 @@ end_y_loopT_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
@@ -1642,6 +1810,7 @@ end_y_loopT_270:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
@@ -1688,6 +1857,8 @@ continue_x_loopS:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1722,6 +1893,25 @@ end_y_loopS:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 136($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 8($t8)
@@ -1770,6 +1960,8 @@ continue_x_loopS_90:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1804,6 +1996,25 @@ end_y_loopS_90:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 388($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 256($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 260($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 384($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 388($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 128($t8)
@@ -1851,6 +2062,8 @@ continue_x_loopS_180:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1885,6 +2098,25 @@ end_y_loopS_180:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 8($t8)
@@ -1933,6 +2165,8 @@ continue_x_loopS_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     
@@ -1951,23 +2185,42 @@ end_y_loopS_270:
     mult $t8, $t8, 4         # Convert to byte offset
     add $t8, $t0, $t8        # Add to the base address
     
-    # lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    # lw $a1, BlockColor      # Set $a1 to check for Red
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, -1256($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
-    # lw $a0, -1260($t8)          # Load the current color at the calculated address into $a0
-    # beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -260($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -260($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, -4($t8)
     sw $t6, 128($t8)
@@ -2017,6 +2270,8 @@ continue_x_loopZ:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2051,6 +2306,25 @@ end_y_loopZ:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 136($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 8($t8)
@@ -2100,6 +2374,8 @@ continue_x_loopZ_90:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2134,6 +2410,25 @@ end_y_loopZ_90:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 128($t8)
@@ -2182,6 +2477,8 @@ continue_x_loopZ_180:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2201,6 +2498,23 @@ end_y_loopZ_180:
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2264,6 +2578,8 @@ continue_x_loopZ_270:
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a1, BorderColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2283,6 +2599,23 @@ end_y_loopZ_270:
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
     lw $a1, BlockColor      # Set $a1 to check for Red
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
+    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
+    lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
