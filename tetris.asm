@@ -564,6 +564,8 @@ draw_tetromino:
 
 continue_draw_tetromino:
     # Check $s2 = 0
+    li $v1, 0xffff00
+    sw $v1, BlockColor
     beq $s2, $zero, draw_tetromino_O
     
     # Check $s2 = 1
@@ -589,7 +591,7 @@ continue_draw_tetromino:
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
-        li $v1, 0xffff00
+        li $v1, 0x0000FF
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
@@ -599,7 +601,7 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
-        li $v1, 0x0000ff
+        li $v1, 0xFF0000
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
