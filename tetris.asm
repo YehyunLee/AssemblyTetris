@@ -1,6 +1,14 @@
     .data
 Random_seed: .word 11923 #Random seed to generate tetrominoes
 Random_multiplier: .word 4721
+Tetromino_O_color: .word 0xffff00  #Tetromino O is yellow
+Tetromino_I_color: .word 0xffff00  #Tetromino O is yellow
+Tetromino_S_color: .word 0xff0000  #Tetromino O is red
+Tetromino_Z_color: .word 0x008000  #Tetromino O is green
+Tetromino_L_color: .word 0xffa500  #Tetromino O is orange
+Tetromino_J_color: .word 0xffc0cb  #Tetromino O is pink
+Tetromino_T_color: .word 0x800080  #Tetromino O is purple
+
 ##############################################################################
 # Immutable Data
 ##############################################################################
@@ -28,20 +36,13 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0x363959 #Block Color of tetrominoes for now
+BlockColor: .word 0 #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
 DarkGrey: .word 0x808080 #Background color
 BrightGrey: .word 0xC0C0C0 # Background color
-# Tetromino_O_color: .word 0xffff00  #Tetromino O is yellow
-# Tetromino_I_color: .word 0xffff00  #Tetromino O is yellow
-# Tetromino_S_color: .word 0xff0000  #Tetromino O is red
-# Tetromino_Z_color: .word 0x008000  #Tetromino O is green
-# Tetromino_L_color: .word 0xffa500  #Tetromino O is orange
-# Tetromino_J_color: .word 0xffc0cb  #Tetromino O is pink
-# Tetromino_T_color: .word 0x800080  #Tetromino O is purple
 
 
 
@@ -534,6 +535,8 @@ continue_draw_tetromino:
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
+        li $v1, 0xffff00
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
         beq $s3, 2, draw_tetromino_I_270
@@ -542,6 +545,8 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
+        li $v1, 0xff0000
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
         beq $s3, 2, draw_tetromino_S_270
@@ -550,6 +555,8 @@ continue_draw_tetromino:
     
     check_s2_equals_3:
         # Check $s3 values under $s2 = 3
+        li $v1, 0x008000
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_Z_90
         beq $s3, 1, draw_tetromino_Z_180
         beq $s3, 2, draw_tetromino_Z_270
@@ -558,6 +565,8 @@ continue_draw_tetromino:
     
     check_s2_equals_4:
         # Check $s3 values under $s2 = 4
+        li $v1, 0xffa500
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_L_90
         beq $s3, 1, draw_tetromino_L_180
         beq $s3, 2, draw_tetromino_L_270
@@ -566,6 +575,8 @@ continue_draw_tetromino:
     
     check_s2_equals_5:
         # Check $s3 values under $s2 = 5
+        li $v1, 0xffc0cb
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_J_90
         beq $s3, 1, draw_tetromino_J_180
         beq $s3, 2, draw_tetromino_J_270
@@ -574,6 +585,8 @@ continue_draw_tetromino:
     
     check_s2_equals_6:
         # Check $s3 values under $s2 = 6
+        li $v1, 0x800080
+        sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_T_90
         beq $s3, 1, draw_tetromino_T_180
         beq $s3, 2, draw_tetromino_T_270
