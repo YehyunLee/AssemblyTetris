@@ -218,86 +218,51 @@ load_saved_exit:
     j returned_create_tetromino
 
 
-# # This use a3
-# collision_code:
-    # # Check for each color. If none match, jump to an error handler or return.
-    # li $v1, 0xFFFF00  # Yellow
-    # beq $a0, $v1, color_match
-    # li $v1, 0x0000FF  # Blue
-    # beq $a0, $v1, color_match
-    # li $v1, 0xFF0000  # Red
-    # beq $a0, $v1, color_match
-    # li $v1, 0x008000  # Green
-    # beq $a0, $v1, color_match
-    # li $v1, 0xFFA500  # Orange
-    # beq $a0, $v1, color_match
-    # li $v1, 0xFFC0CB  # Pink
-    # beq $a0, $v1, color_match
-    # li $v1, 0x800080  # Purple
-    # beq $a0, $v1, color_match
-    # lw $v1, BorderColor # Border Color
-    # beq $a0, $v1, color_match
-    # jr $ra  # If no collision is found return
-
-# color_match:
-    # # Color matched, now decide action based on $a3
-    # beq $a3, 0, handle_0
-    # beq $a3, 1, handle_1
-    # beq $a3, 2, handle_2
-    # beq $a3, 3, handle_3
-    # # If $a3 doesn't match expected values, jump to error handling
-    # j respond_to_Q  # Change this to appropriate handling if no $a3 match
-
-# handle_0:
-    # li $a0, 100
-    # j mutation
-
-# handle_1:
-    # li $a0, 97
-    # j mutation
-
-# handle_2:
-    # li $a0, 128
-    # j mutation
-
-# handle_3:
-    # li $a0, 129
-    # j mutation
-    
-
-
 # This use a3
-
 collision_code:
+    # Check for each color. If none match, jump to an error handler or return.
+    li $v1, 0xFFFF00  # Yellow
+    beq $a0, $v1, color_match
+    li $v1, 0x0000FF  # Blue
+    beq $a0, $v1, color_match
+    li $v1, 0xFF0000  # Red
+    beq $a0, $v1, color_match
+    li $v1, 0x008000  # Green
+    beq $a0, $v1, color_match
+    li $v1, 0xFFA500  # Orange
+    beq $a0, $v1, color_match
+    li $v1, 0xFFC0CB  # Pink
+    beq $a0, $v1, color_match
+    li $v1, 0x800080  # Purple
+    beq $a0, $v1, color_match
+    lw $v1, BorderColor # Border Color
+    beq $a0, $v1, color_match
+    jr $ra  # If no collision is found return
+
+color_match:
+    # Color matched, now decide action based on $a3
     beq $a3, 0, handle_0
     beq $a3, 1, handle_1
     beq $a3, 2, handle_2
     beq $a3, 3, handle_3
-    handle_0:
+    # If $a3 doesn't match expected values, jump to error handling
+    j respond_to_Q  # Change this to appropriate handling if no $a3 match
 
-        li $a0, 100
+handle_0:
+    li $a0, 100
+    j mutation
 
-        j mutation
+handle_1:
+    li $a0, 97
+    j mutation
 
-    handle_1:
+handle_2:
+    li $a0, 128
+    j mutation
 
-        li $a0, 97
-
-        j mutation
-
-    handle_2:
-
-        li $a0, 128
-
-        j mutation
-
-    handle_3:
-
-        li $a0, 129
-
-        j mutation
-
-    j respond_to_Q  # Unexpected error
+handle_3:
+    li $a0, 129
+    j mutation
 
 
 ##############################################################################
@@ -332,7 +297,7 @@ mutation:
     subi $t6, $t6, 16
 
     # Retrieve values for the current tetromino from the stack
-    lw $t1, 0($t6)              # Load value for s2
+    lw $t2, 0($t6)              # Load value for s2
     lw $t3, 4($t6)              # Load value for s3
     lw $t4, 8($t6)              # Load value for s4
     lw $t5, 12($t6)             # Load value for s5
@@ -340,7 +305,7 @@ mutation:
     move $a2, $t6
 
     # Move loaded values to respective registers
-    move $s2, $t1               # s2 = loaded value for s2
+    move $s2, $t2               # s2 = loaded value for s2
     move $s3, $t3               # s3 = loaded value for s3
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
