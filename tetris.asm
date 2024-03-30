@@ -31,7 +31,7 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0 #Block Color of tetrominoes for now
+BlockColor: .word 0x363959  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
@@ -218,51 +218,86 @@ load_saved_exit:
     j returned_create_tetromino
 
 
-# This use a3
-collision_code:
-    # Check for each color. If none match, jump to an error handler or return.
-    li $v1, 0xFFFF00  # Yellow
-    beq $a0, $v1, color_match
-    li $v1, 0x0000FF  # Blue
-    beq $a0, $v1, color_match
-    li $v1, 0xFF0000  # Red
-    beq $a0, $v1, color_match
-    li $v1, 0x008000  # Green
-    beq $a0, $v1, color_match
-    li $v1, 0xFFA500  # Orange
-    beq $a0, $v1, color_match
-    li $v1, 0xFFC0CB  # Pink
-    beq $a0, $v1, color_match
-    li $v1, 0x800080  # Purple
-    beq $a0, $v1, color_match
-    lw $v1, BorderColor # Border Color
-    beq $a0, $v1, color_match
-    jr $ra  # If no collision is found return
+# # This use a3
+# collision_code:
+    # # Check for each color. If none match, jump to an error handler or return.
+    # li $v1, 0xFFFF00  # Yellow
+    # beq $a0, $v1, color_match
+    # li $v1, 0x0000FF  # Blue
+    # beq $a0, $v1, color_match
+    # li $v1, 0xFF0000  # Red
+    # beq $a0, $v1, color_match
+    # li $v1, 0x008000  # Green
+    # beq $a0, $v1, color_match
+    # li $v1, 0xFFA500  # Orange
+    # beq $a0, $v1, color_match
+    # li $v1, 0xFFC0CB  # Pink
+    # beq $a0, $v1, color_match
+    # li $v1, 0x800080  # Purple
+    # beq $a0, $v1, color_match
+    # lw $v1, BorderColor # Border Color
+    # beq $a0, $v1, color_match
+    # jr $ra  # If no collision is found return
 
-color_match:
-    # Color matched, now decide action based on $a3
+# color_match:
+    # # Color matched, now decide action based on $a3
+    # beq $a3, 0, handle_0
+    # beq $a3, 1, handle_1
+    # beq $a3, 2, handle_2
+    # beq $a3, 3, handle_3
+    # # If $a3 doesn't match expected values, jump to error handling
+    # j respond_to_Q  # Change this to appropriate handling if no $a3 match
+
+# handle_0:
+    # li $a0, 100
+    # j mutation
+
+# handle_1:
+    # li $a0, 97
+    # j mutation
+
+# handle_2:
+    # li $a0, 128
+    # j mutation
+
+# handle_3:
+    # li $a0, 129
+    # j mutation
+    
+
+
+# This use a3
+
+collision_code:
     beq $a3, 0, handle_0
     beq $a3, 1, handle_1
     beq $a3, 2, handle_2
     beq $a3, 3, handle_3
-    # If $a3 doesn't match expected values, jump to error handling
-    j respond_to_Q  # Change this to appropriate handling if no $a3 match
+    handle_0:
 
-handle_0:
-    li $a0, 100
-    j mutation
+        li $a0, 100
 
-handle_1:
-    li $a0, 97
-    j mutation
+        j mutation
 
-handle_2:
-    li $a0, 128
-    j mutation
+    handle_1:
 
-handle_3:
-    li $a0, 129
-    j mutation
+        li $a0, 97
+
+        j mutation
+
+    handle_2:
+
+        li $a0, 128
+
+        j mutation
+
+    handle_3:
+
+        li $a0, 129
+
+        j mutation
+
+    j respond_to_Q  # Unexpected error
 
 
 ##############################################################################
@@ -354,7 +389,7 @@ handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     j update
 update:
     # Store values onto the stack
-    sw $t1, 0($a2)              # Load value for s2
+    sw $t2, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
@@ -530,6 +565,8 @@ draw_tetromino:
 
 continue_draw_tetromino:
     # Check $s2 = 0
+    li $v1, 0xffff00
+    sw $v1, BlockColor
     beq $s2, $zero, draw_tetromino_O
     
     # Check $s2 = 1
@@ -555,7 +592,7 @@ continue_draw_tetromino:
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
-        li $v1, 0xffff00
+        li $v1, 0x0000FF
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
@@ -565,7 +602,7 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
-        li $v1, 0x0000ff
+        li $v1, 0xFF0000
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
