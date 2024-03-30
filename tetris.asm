@@ -30,7 +30,14 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0 #Block Color of tetrominoes for now
+BlockColour0: .word 0 # Block Color of tetrominoes for now
+BlockColour1: .word 1 # Block Color of tetrominoes for now
+BlockColour2: .word 2 # Block Color of tetrominoes for now
+BlockColour3: .word 3 # Block Color of tetrominoes for now
+BlockColour4: .word 4 # Block Color of tetrominoes for now
+BlockColour5: .word 5 # Block Color of tetrominoes for now
+BlockColour6: .word 6 # Block Color of tetrominoes for now
+
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
@@ -565,7 +572,7 @@ draw_tetromino:
 continue_draw_tetromino:
     # Check $s2 = 0
     li $v1, 0xffff00
-    sw $v1, BlockColor
+    sw $v1, BlockColour0
     beq $s2, $zero, draw_tetromino_O
     
     # Check $s2 = 1
@@ -592,7 +599,7 @@ continue_draw_tetromino:
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
         li $v1, 0x0000FF
-        sw $v1, BlockColor
+        sw $v1, BlockColour1
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
         beq $s3, 2, draw_tetromino_I_270
@@ -602,7 +609,7 @@ continue_draw_tetromino:
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
         li $v1, 0xFF0000
-        sw $v1, BlockColor
+        sw $v1, BlockColour2
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
         beq $s3, 2, draw_tetromino_S_270
@@ -612,7 +619,7 @@ continue_draw_tetromino:
     check_s2_equals_3:
         # Check $s3 values under $s2 = 3
         li $v1, 0x008000
-        sw $v1, BlockColor
+        sw $v1, BlockColour3
         beq $s3, $zero, draw_tetromino_Z_90
         beq $s3, 1, draw_tetromino_Z_180
         beq $s3, 2, draw_tetromino_Z_270
@@ -622,7 +629,7 @@ continue_draw_tetromino:
     check_s2_equals_4:
         # Check $s3 values under $s2 = 4
         li $v1, 0xffa500
-        sw $v1, BlockColor
+        sw $v1, BlockColour4
         beq $s3, $zero, draw_tetromino_L_90
         beq $s3, 1, draw_tetromino_L_180
         beq $s3, 2, draw_tetromino_L_270
@@ -632,7 +639,7 @@ continue_draw_tetromino:
     check_s2_equals_5:
         # Check $s3 values under $s2 = 5
         li $v1, 0xffc0cb
-        sw $v1, BlockColor
+        sw $v1, BlockColour5
         beq $s3, $zero, draw_tetromino_J_90
         beq $s3, 1, draw_tetromino_J_180
         beq $s3, 2, draw_tetromino_J_270
@@ -642,7 +649,7 @@ continue_draw_tetromino:
     check_s2_equals_6:
         # Check $s3 values under $s2 = 6
         li $v1, 0x800080
-        sw $v1, BlockColor
+        sw $v1, BlockColour6
         beq $s3, $zero, draw_tetromino_T_90
         beq $s3, 1, draw_tetromino_T_180
         beq $s3, 2, draw_tetromino_T_270
@@ -659,7 +666,7 @@ end_draw:
 draw_tetromino_O:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour0      # Load the block color
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -684,7 +691,7 @@ continue_xO:
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour0      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -703,7 +710,7 @@ end_y_loopO:
 draw_tetromino_I:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour1      # Load the block color
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -728,7 +735,7 @@ continue_xI:
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour1      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -745,7 +752,7 @@ end_y_loopI:
 draw_tetromino_I_90:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour1      # Load the block color
     
     # Offset X and Y for rotation
     addi $t4, $t4, 0
@@ -774,7 +781,7 @@ continue_xI_90:
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour1      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -792,7 +799,7 @@ end_y_loopI_90:
 draw_tetromino_I_180:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour1      # Load the block color
     li $s2, 1               # Label Tetromino_I for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -824,7 +831,7 @@ continue_x_loopI_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour1      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -843,7 +850,7 @@ end_y_loopI_180:
 draw_tetromino_I_270:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour1      # Load the block color
     li $s2, 1               # Label Tetromino_I for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -875,7 +882,7 @@ continue_xloopI_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour1      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -894,7 +901,7 @@ end_y_loopI_270:
 draw_tetromino_L:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour4      # Load the block color
     li $s2, 4               # Label Tetromino_L for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -964,7 +971,7 @@ end_y_loopL:
 draw_tetromino_L_90:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour4      # Load the block color
     li $s2, 4               # Label Tetromino_L for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -996,7 +1003,7 @@ continue_x_loopL_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1020,7 +1027,7 @@ end_y_loopL_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1050,7 +1057,7 @@ end_y_loopL_90:
 draw_tetromino_L_180:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour4      # Load the block color
     li $s2, 4               # Label Tetromino_L for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1082,7 +1089,7 @@ continue_x_loopL_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1106,7 +1113,7 @@ end_y_loopL_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1137,7 +1144,7 @@ end_y_loopL_180:
 draw_tetromino_L_270:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour4      # Load the block color
     li $s2, 4               # Label Tetromino_L for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1169,7 +1176,7 @@ continue_x_loopL_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1193,7 +1200,7 @@ end_y_loopL_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour4      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1222,7 +1229,7 @@ end_y_loopL_270:
 draw_tetromino_J:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour5      # Load the block color
     li $s2, 5               # Label Tetromino_L for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1254,7 +1261,7 @@ continue_x_loopJ:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1278,7 +1285,7 @@ end_y_loopJ:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1308,7 +1315,7 @@ end_y_loopJ:
 draw_tetromino_J_90:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour5      # Load the block color
     li $s2, 5               # Label Tetromino_L for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1340,7 +1347,7 @@ continue_x_loopJ_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1364,7 +1371,7 @@ end_y_loopJ_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1395,7 +1402,7 @@ end_y_loopJ_90:
 draw_tetromino_J_180:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour5      # Load the block color
     li $s2, 5               # Label Tetromino_L for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1427,7 +1434,7 @@ continue_x_loopJ_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1451,7 +1458,7 @@ end_y_loopJ_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1482,7 +1489,7 @@ end_y_loopJ_180:
 draw_tetromino_J_270:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour5      # Load the block color
     li $s2, 5               # Label Tetromino_L for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1514,7 +1521,7 @@ continue_x_loopJ_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1538,7 +1545,7 @@ end_y_loopJ_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour5      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1568,7 +1575,7 @@ end_y_loopJ_270:
 draw_tetromino_T: #subroutine to draw square tetromino    
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour6      # Load the block color
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1594,7 +1601,7 @@ continue_xT:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1616,7 +1623,7 @@ end_y_loopT:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1644,7 +1651,7 @@ end_y_loopT:
 draw_tetromino_T_90:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour6      # Load the block color
     li $s2, 6               # Label Tetromino_L for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1676,7 +1683,7 @@ continue_x_loopT_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1700,7 +1707,7 @@ end_y_loopT_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1732,7 +1739,7 @@ end_y_loopT_90:
 draw_tetromino_T_180:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour6      # Load the block color
     li $s2, 6               # Label Tetromino_L for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1764,7 +1771,7 @@ continue_x_loopT_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1788,7 +1795,7 @@ end_y_loopT_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1817,7 +1824,7 @@ end_y_loopT_180:
 draw_tetromino_T_270:
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour6      # Load the block color
     li $s2, 6               # Label Tetromino_L for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1849,7 +1856,7 @@ continue_x_loopT_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1883,7 +1890,7 @@ end_y_loopT_270:
     beq $a0, $a1, collision_code  # If color matches, there's collision
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour6      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1904,7 +1911,7 @@ end_y_loopT_270:
 draw_tetromino_S: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour2      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -1936,7 +1943,7 @@ continue_x_loopS:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -1958,7 +1965,7 @@ end_y_loopS:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2008,7 +2015,7 @@ end_y_loopS:
 draw_tetromino_S_90: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour2      # Load the block color
     li $s2, 2               # Label Tetromino_S for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2039,7 +2046,7 @@ continue_x_loopS_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2061,7 +2068,7 @@ end_y_loopS_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2109,7 +2116,7 @@ end_y_loopS_90:
 draw_tetromino_S_180: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour2      # Load the block color
     li $s2, 2               # Label Tetromino_S for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2141,7 +2148,7 @@ continue_x_loopS_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2163,7 +2170,7 @@ end_y_loopS_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2212,7 +2219,7 @@ end_y_loopS_180:
 draw_tetromino_S_270: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour2      # Load the block color
     li $s2, 2               # Label Tetromino_S for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2244,7 +2251,7 @@ continue_x_loopS_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2267,7 +2274,7 @@ end_y_loopS_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour2      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2317,7 +2324,7 @@ end_y_loopS_270:
 draw_tetromino_Z: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour3      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2349,7 +2356,7 @@ continue_x_loopZ:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2371,7 +2378,7 @@ end_y_loopZ:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2421,7 +2428,7 @@ end_y_loopZ:
 draw_tetromino_Z_90: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour3      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2453,7 +2460,7 @@ continue_x_loopZ_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2475,7 +2482,7 @@ end_y_loopZ_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2524,7 +2531,7 @@ end_y_loopZ_90:
 draw_tetromino_Z_180: #subroutine to draw square tetromino
    move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour3      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2556,7 +2563,7 @@ continue_x_loopZ_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2578,7 +2585,7 @@ end_y_loopZ_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2625,7 +2632,7 @@ end_y_loopZ_180:
 draw_tetromino_Z_270: #subroutine to draw square tetromino
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
+    lw $t6, BlockColour3      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
@@ -2657,7 +2664,7 @@ continue_x_loopZ_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a1, BorderColor      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
@@ -2679,7 +2686,7 @@ end_y_loopZ_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
+    lw $a1, BlockColour3      # Set $a1 to check for Red
     beq $a0, $a1, collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
     beq $a0, $a1, collision_code  # If color matches, there's collision
