@@ -1,13 +1,7 @@
     .data
 Random_seed: .word 11923 #Random seed to generate tetrominoes
 Random_multiplier: .word 4721
-Tetromino_O_color: .word 0xffff00  #Tetromino O is yellow
-Tetromino_I_color: .word 0xffff00  #Tetromino O is yellow
-Tetromino_S_color: .word 0xff0000  #Tetromino O is red
-Tetromino_Z_color: .word 0x008000  #Tetromino O is green
-Tetromino_L_color: .word 0xffa500  #Tetromino O is orange
-Tetromino_J_color: .word 0xffc0cb  #Tetromino O is pink
-Tetromino_T_color: .word 0x800080  #Tetromino O is purple
+
 
 ##############################################################################
 # Immutable Data
@@ -545,7 +539,7 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
-        li $v1, 0xff0000
+        li $v1, 0x0000ff
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
