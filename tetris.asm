@@ -1,4 +1,6 @@
     .data
+Random_seed: .word 11923 #Random seed to generate tetrominoes
+Random_multiplier: .word 4721
 ##############################################################################
 # Immutable Data
 ##############################################################################
@@ -33,6 +35,17 @@ BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
 DarkGrey: .word 0x808080 #Background color
 BrightGrey: .word 0xC0C0C0 # Background color
+# Tetromino_O_color: .word 0xffff00  #Tetromino O is yellow
+# Tetromino_I_color: .word 0xffff00  #Tetromino O is yellow
+# Tetromino_S_color: .word 0xff0000  #Tetromino O is red
+# Tetromino_Z_color: .word 0x008000  #Tetromino O is green
+# Tetromino_L_color: .word 0xffa500  #Tetromino O is orange
+# Tetromino_J_color: .word 0xffc0cb  #Tetromino O is pink
+# Tetromino_T_color: .word 0x800080  #Tetromino O is purple
+
+
+
+
 
 # Major variables:
     # lw $s0 for paint (sw)
@@ -74,15 +87,31 @@ new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
-    li $t2, 4                # Value for s2
-    li $t3, 0                # Value for s3
-    li $t4, 14               # Value for s4
-    li $t5, 2               # Value for s5
+    lw $v0, Random_seed       # Load seed
+    lw $v1, Random_multiplier # Load multiplier
+    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
+    addi $v0, $v0, 1697       # (Seed * A) + C
+    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
+    sw $v0, Random_seed       # Store updated seed
+    andi $v0, $v0, 7          # Ensure range is within 0-7
+    move $t2, $v0             # Value for s2, 0-6 range
+
+    lw $v0, Random_seed       # Reload the updated seed
+    lw $v1, Random_multiplier # Reload multiplier
+    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
+    addi $v0, $v0, 7487        # (Seed * A) + C
+    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
+    sw $v0, Random_seed       # Store updated seed again
+    andi $v0, $v0, 3          # Correctly constrain range to 0-3 for s3
+    move $t3, $v0             # Move v0 to t3
+
+    li $t4, 14                # Value for s4
+    li $t5, 2                 # Value for s5
     # Store values onto the stack
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
-    sw $t5, 12($t6)      
+    sw $t5, 12($t6)    
 
     lw $t0, NumTetrominos
     addi $t0, $t0, 1
