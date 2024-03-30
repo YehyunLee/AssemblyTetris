@@ -219,24 +219,49 @@ load_saved_exit:
 
 # This use a3
 collision_code:
-    # Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
+    # Check for each color. If none match, jump to an error handler or return.
+    li $v1, 0xFFFF00  # Yellow
+    beq $a0, $v1, color_match
+    li $v1, 0x0000FF  # Blue
+    beq $a0, $v1, color_match
+    li $v1, 0xFF0000  # Red
+    beq $a0, $v1, color_match
+    li $v1, 0x008000  # Green
+    beq $a0, $v1, color_match
+    li $v1, 0xFFA500  # Orange
+    beq $a0, $v1, color_match
+    li $v1, 0xFFC0CB  # Pink
+    beq $a0, $v1, color_match
+    li $v1, 0x800080  # Purple
+    beq $a0, $v1, color_match
+    lw $v1, BorderColor # Border Color
+    beq $a0, $v1, color_match
+    jr $ra  # If no collision is found return
+
+color_match:
+    # Color matched, now decide action based on $a3
     beq $a3, 0, handle_0
     beq $a3, 1, handle_1
     beq $a3, 2, handle_2
     beq $a3, 3, handle_3
-    handle_0:
-        li $a0, 100
-        j mutation
-    handle_1:
-        li $a0, 97
-        j mutation
-    handle_2:
-        li $a0, 128
-        j mutation
-    handle_3:
-        li $a0, 129
-        j mutation
-    j respond_to_Q  # Unexpected error
+    # If $a3 doesn't match expected values, jump to error handling
+    j respond_to_Q  # Change this to appropriate handling if no $a3 match
+
+handle_0:
+    li $a0, 100
+    j mutation
+
+handle_1:
+    li $a0, 97
+    j mutation
+
+handle_2:
+    li $a0, 128
+    j mutation
+
+handle_3:
+    li $a0, 129
+    j mutation
 
 
 ##############################################################################
@@ -271,7 +296,7 @@ mutation:
     subi $t6, $t6, 16
 
     # Retrieve values for the current tetromino from the stack
-    lw $t2, 0($t6)              # Load value for s2
+    lw $t1, 0($t6)              # Load value for s2
     lw $t3, 4($t6)              # Load value for s3
     lw $t4, 8($t6)              # Load value for s4
     lw $t5, 12($t6)             # Load value for s5
@@ -279,7 +304,7 @@ mutation:
     move $a2, $t6
 
     # Move loaded values to respective registers
-    move $s2, $t2               # s2 = loaded value for s2
+    move $s2, $t1               # s2 = loaded value for s2
     move $s3, $t3               # s3 = loaded value for s3
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
@@ -328,7 +353,7 @@ handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     j update
 update:
     # Store values onto the stack
-    sw $t2, 0($a2)              # Load value for s2
+    sw $t1, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
@@ -864,12 +889,7 @@ continue_x_loopL:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -888,33 +908,19 @@ end_y_loopL:
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
     add $t8, $t0, $t8        # Add to the base address
-    
+   
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    
+    jal collision_code
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, -128($t8)
     sw $t6, -124($t8)
-    
-
     jr $ra                  # Return from subroutine
 
 
