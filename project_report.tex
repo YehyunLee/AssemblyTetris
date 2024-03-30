@@ -1,0 +1,148 @@
+\documentclass{article}
+
+%% Page Margins %%
+\usepackage{geometry}
+\geometry{
+    top = 0.75in,
+    bottom = 0.75in,
+    right = 0.75in,
+    left = 0.75in,
+}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{parskip}
+
+\title{Assembly Project: Tetris}
+
+% TODO: Enter your name
+\author{Yehyun Lee & Hisham}
+
+\begin{document}
+\maketitle
+
+\section{Instruction and Summary}
+
+\begin{enumerate}
+
+    \item Which milestones were implemented? \\
+    % TODO: List the milestone(s) and in the case of 
+    %       Milestones 4 & 5, list what features you 
+    %       implemented, sorted into easy and hard 
+    %       categories.
+    - Milestones 1, 2, 3 has been completed!
+
+    For the snapshot of progress take a look at our Github page. Please contact yehyun.lee@mail.utoronto.ca for access to private repo.
+    https://github.com/YehyunLee/AssemblyTetris
+
+    \item How to view the game:
+    % TODO: specify the pixes/unit, width and height of 
+    %       your game, etc.  NOTE: list these details in
+    %       the header of your breakout.asm file too!
+    
+    \begin{enumerate}
+
+    \item Run the tetris.asm file in a MIPS IDE such as Saturn or Mars
+
+
+    \end{enumerate}
+
+    
+
+\begin{figure}[ht!]
+    \centering
+    % \includegraphics[width=0.3\textwidth]{name.png}
+    \caption{caption}
+    \label{Instructions}
+\end{figure}
+
+\item Game Summary:
+% TODO: Tell us a little about your game.
+\begin{itemize}
+\item Pressing `W" would rotate the tetrominoes 90 degrees clockwise
+\item Pressing `S" would decrease the position of incoming tetrominoes by 1 until it collides
+\item If it collides, a new tetromino is loaded into the screen.
+\item For this game version, the program is design to go on until program stops 
+\item Program can be stop by pausing the run or clicking "Q" on the keyboard
+\item For now, only a specific tetormino, specified will get dropped. However, in the next update, we will implement the random function to randomize tetrominoes being created.
+\end{itemize}
+
+\begin{verbatim}
+    # Major variables:
+    # lw $s0 for paint (sw)
+    # li $s1 for paint counter (need this for general use)
+    # li $s2 for what TETRO, ex) O, J, T, using int; refer to image.
+    # li $s3 for what ANGLE ex) 0 is default, 1 is one 90 roration upto 3.
+    # li $s4 OTetrominoX
+    # li $s5 OTetrominoY
+    # lw $s6, ADDR_DSPL
+    # lw $s7, ADDR_KBRD
+    # a3 for collision
+\end{verbatim}
+
+
+    
+\end{enumerate}
+
+\section{Attribution Table}
+% TODO: If you worked in partners, tell us who was 
+%       responsible for which features. Some reweighting 
+%       might be possible in cases where one group member
+%       deserves extra credit for the work they put in.
+
+
+
+\begin{center}
+\begin{tabular}{|| c | c ||}
+\hline
+ Yehyun Lee (1008992217) &  Aung Zwe Maw (1008604949) \\ 
+ \hline
+ [MEDIUM] Coded the background: grid and 3 walls & [HARD] Implemented Original tetromino drawings\\
+ \hline
+ [HARD] Designed and Coded Collision Logic & [HARD] Also created every possible rotated tetromino drawing\\
+ \hline
+ [HARD] Movement W, A, S, D & ←Hisham helped me debugging with CodeTogether until 2AM.\\ 
+ \hline
+ [EASY] Coded Keyboard Input & [MEDIUM] Rotation is consisten at a consistent point of origin\\ 
+ \hline
+ [HARD] General Game Loop Logic Flow:\\Saving Tetrominoes Information,\\
+ Loading and Handles All Game States & [HARD] Rotation code so screen reloads with rotated Tetromino\\
+ \hline
+\end{tabular}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{tetris_diagram.png}
+    \caption{Draft Diagram by Yehyun}
+    \label{f:1}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{diagram2.png}
+    \caption{Draft Diagram by Yehyun: Outdated Game Logic}
+    \label{f:1}
+\end{figure}
+
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{diagram3.png}
+    \caption{Snapshot of Progress}
+    \label{f:1}
+\end{figure}
+
+
+\end{center}
+
+
+% TODO: Fill out the remainder of the document as you see 
+%       fit, including as much detail as you think 
+%       necessary to better understand your code. 
+%       You can add extra sections and subsections to 
+%       help us understand why you deserve marks for 
+%       features that were more challenging than they
+%       might initially seem.
+
+
+\end{document}
