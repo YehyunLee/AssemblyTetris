@@ -248,7 +248,8 @@ collision_code:
     beq $a0, $v1, color_match
     lw $v1, BorderColor # This is for the walls
     addi $v1, $v1, 100 # Slightly different border-color
-    beq $a0, $v1, handle_4
+    beq $a0, $v1, color_match
+    move $v0, $a0 #Move to v0 to compare background color
     jr $ra  # If no collision is found return
 
 color_match:
@@ -276,9 +277,6 @@ handle_3:
     li $a0, 129
     j mutation
 
-handle_4:
-    li $a0, 0
-    j mutation
 
 ##############################################################################
 # Function for Random
@@ -337,16 +335,10 @@ mutation:
     beq $a0, 115, add_y_2
     beq $a0, 128, sub_y_2  # ADDED FOR COLLISION EXIT
     beq $a0, 129, handle_revert_rotation  # ADDED FOR COLLISION EXIT
-    # Collid wall do nothing
-    beq $a0, 0, do_nothing
     
     j game_loop
 
 # Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
-do_nothing:
-    # subi $t4, $t4, 2
-    # li $a3, 0
-    j update
 sub_x_2:
     subi $t4, $t4, 2
     li $a3, 0
@@ -375,13 +367,19 @@ handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     j update
 update:
     # Store values onto the stack
+    beq $v0, $v1, continue_playing
     sw $t2, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
-
     j load_saved
 
+continue_playing: 
+    move $t2, $s2
+    move $t3, $s3
+    move $t4, $s4
+    move $t5, $s5
+    j load_saved
 ##############################################################################
 # Function for Init Grid
 ##############################################################################
