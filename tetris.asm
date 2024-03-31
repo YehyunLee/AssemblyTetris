@@ -215,50 +215,51 @@ pause_game:
     end_y_loopP:
         lw $ra, savedRA  # Restore $ra from the global variable
     
+    
     # Retrieve values for the current tetromino from the stack
     li $t4, 1
     li $t5, 0
-
     # Move loaded values to respective registers
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
     draw_tetromino_OP:
-    sw $ra, savedRA  # Save $ra to the global variable
-    move $t4, $s4     # Load the X-coordinate
-    move $t5, $s5     # Load the Y-coordinate
-    lw $t6, BlockColor      # Load the block color
-    
-    # Calculate the initial offset
-    li $t1, 32              # Width of the display in pixels
-    mul $t2, $t5, $t1       # Y offset in terms of display width
-    add $t9, $t4, $t2       # Combine X and Y offsets
-    
-    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-    y_loopOP:
-        blt $t8, 4, continue_yOP  # If Y loop counter < 8, continue
-        j end_y_loopOP            # Else, jump to the end of Y loop
-    continue_yOP:
-        li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-    x_loopOP:
-        blt $t7, 4, continue_xOP  # If X loop counter < 2, continue
-        j end_x_loopOP            # Else, jump to the end of X loop
-    continue_xOP:
-        # Calculate the offset for each pixel
-        mul $t3, $t8, $t1       # Y offset for the current row
-        add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-        add $t2, $t2, $t3       # Add current Y offset
-        li $t3, 4               # Bytes per pixel
-        mul $t2, $t2, $t3       # Convert to byte offset
-        add $t2, $t0, $t2       # Add to the base address
-        lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-        sw $t6, 0($t2)          # Store the block color at the calculated address
-        addi $t7, $t7, 1        # Increment X loop counter
-        j x_loopOP                # Jump back to the start of the X loop
-    end_x_loopOP:
-        addi $t8, $t8, 1        # Increment Y loop counter
-        j y_loopOP                # Jump back to the start of the Y loop
-    end_y_loopOP:
-        lw $ra, savedRA  # Restore $ra from the global variable
+        sw $ra, savedRA  # Save $ra to the global variable
+        move $t4, $s4     # Load the X-coordinate
+        move $t5, $s5     # Load the Y-coordinate
+        lw $t6, BlockColor      # Load the block color
+        
+        # Calculate the initial offset
+        li $t1, 32              # Width of the display in pixels
+        mul $t2, $t5, $t1       # Y offset in terms of display width
+        add $t9, $t4, $t2       # Combine X and Y offsets
+        
+        li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+        y_loopOP:
+            blt $t8, 4, continue_yOP  # If Y loop counter < 8, continue
+            j end_y_loopOP            # Else, jump to the end of Y loop
+        continue_yOP:
+            li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+        x_loopOP:
+            blt $t7, 4, continue_xOP  # If X loop counter < 2, continue
+            j end_x_loopOP            # Else, jump to the end of X loop
+        continue_xOP:
+            # Calculate the offset for each pixel
+            mul $t3, $t8, $t1       # Y offset for the current row
+            add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+            add $t2, $t2, $t3       # Add current Y offset
+            li $t3, 4               # Bytes per pixel
+            mul $t2, $t2, $t3       # Convert to byte offset
+            add $t2, $t0, $t2       # Add to the base address
+            lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
+            sw $t6, 0($t2)          # Store the block color at the calculated address
+            addi $t7, $t7, 1        # Increment X loop counter
+            j x_loopOP                # Jump back to the start of the X loop
+        end_x_loopOP:
+            addi $t8, $t8, 1        # Increment Y loop counter
+            j y_loopOP                # Jump back to the start of the Y loop
+        end_y_loopOP:
+            lw $ra, savedRA  # Restore $ra from the global variable
+        
 repeat_pause_game:
 	# 1a. Check if key has been pressed
 	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
