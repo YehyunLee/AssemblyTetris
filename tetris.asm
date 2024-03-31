@@ -234,12 +234,17 @@ collision_code:
     beq $a0, $v1, color_match
     li $v1, 0x800080  # Purple
     beq $a0, $v1, color_match
-    lw $v1, BorderColor # Border Color
+    lw $v1, BorderColor # Border Color (for bottom)
+    beq $a0, $v1, color_match
+    lw $v1, BorderColor # Border Color (for left and right)
+    addi $v1, $v1, 5
     beq $a0, $v1, color_match
     jr $ra  # If no collision is found return
 
+
+
 color_match:
-    # Color matched, now decide action based on $a3
+    # Color matched, now decide action based on $a3 
     beq $a3, 0, handle_0
     beq $a3, 1, handle_1
     beq $a3, 2, handle_2
@@ -261,6 +266,10 @@ handle_2:
 
 handle_3:
     li $a0, 129
+    j mutation
+
+handle_4:
+    li $a0, 0
     j mutation
 
 
@@ -425,6 +434,9 @@ paint_loop_end:
 wall_initL:
     # INIT
     # li $t8, 0x000000        # Black
+    lw $v0, BorderColor
+    addi $v0, $v0, 1
+    sw $v0, BorderColor
     lw $t8, BorderColor
     li $t1, 0               # Col counter
     li $t2, 0               # Row counter
@@ -442,7 +454,8 @@ reset_rowL:
 left_wall:
     beq $t1, 6, wall_initR          # For loop
     beq $t2, 129, reset_rowL
-    sw $t8, 0($s0)
+    addi $v0, $t8, 5 # Add 5 HEX to left wall color
+    sw $v0, ($s0) #changed 
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -468,7 +481,8 @@ reset_rowR:
 right_wall:
     beq $t1, 128, wall_initB          # For loop
     beq $t2, 129, reset_rowR
-    sw $t8, 0($s0)
+    addi $v0, $t8, 5    # Add 5 more HEX to Right_wall
+    sw $v0, ($s0) #changed
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -477,7 +491,7 @@ right_wall:
 wall_initB:
     # INIT
     li $t1, 832               # Col counter
-    li $t2, 0               # Row counter
+    li $t2, 4               # Row counter
     sub $s0, $s0, $s1       # Subtract to get initial offset
     li $s1, 0
     j bottom_wall
@@ -490,7 +504,7 @@ reset_rowB:
     add $s0, $s0, $t5
     add $s1, $s1, $t5
 bottom_wall:
-    beq $t1, 864, exit_init_grid          # For loop
+    beq $t1, 872, exit_init_grid          # For loop
     beq $t2, 6, reset_rowB
     sw $t8, 0($s0)
     addi $t2, $t2, 1
