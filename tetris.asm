@@ -1,4 +1,6 @@
     .data
+Random_seed: .word 11923 #Random seed to generate tetrominoes
+Random_multiplier: .word 4721
 savedRA: .word 0 # Used to save return address before getting overwritten
 
 
@@ -29,7 +31,7 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0 #Block Color of tetrominoes for now
+BlockColor: .word 0x363959  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
@@ -242,17 +244,12 @@ collision_code:
     beq $a0, $v1, color_match
     li $v1, 0x800080  # Purple
     beq $a0, $v1, color_match
-    lw $v1, BorderColor # Border Color (for bottom)
-    beq $a0, $v1, color_match
-    lw $v1, BorderColor # Border Color (for left and right)
-    addi $v1, $v1, 5
+    lw $v1, BorderColor # Border Color
     beq $a0, $v1, color_match
     jr $ra  # If no collision is found return
 
-
-
 color_match:
-    # Color matched, now decide action based on $a3 
+    # Color matched, now decide action based on $a3
     beq $a3, 0, handle_0
     beq $a3, 1, handle_1
     beq $a3, 2, handle_2
@@ -366,7 +363,7 @@ handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     j update
 update:
     # Store values onto the stack
-    sw $t1, 0($a2)              # Load value for s2
+    sw $t2, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
@@ -438,9 +435,6 @@ paint_loop_end:
 wall_initL:
     # INIT
     # li $t8, 0x000000        # Black
-    lw $v0, BorderColor
-    addi $v0, $v0, 1
-    sw $v0, BorderColor
     lw $t8, BorderColor
     li $t1, 0               # Col counter
     li $t2, 0               # Row counter
@@ -458,8 +452,7 @@ reset_rowL:
 left_wall:
     beq $t1, 6, wall_initR          # For loop
     beq $t2, 129, reset_rowL
-    addi $v0, $t8, 5 # Add 5 HEX to left wall color
-    sw $v0, ($s0) #changed 
+    sw $t8, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -485,8 +478,7 @@ reset_rowR:
 right_wall:
     beq $t1, 128, wall_initB          # For loop
     beq $t2, 129, reset_rowR
-    addi $v0, $t8, 5    # Add 5 more HEX to Right_wall
-    sw $v0, ($s0) #changed
+    sw $t8, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -495,7 +487,7 @@ right_wall:
 wall_initB:
     # INIT
     li $t1, 832               # Col counter
-    li $t2, 4               # Row counter
+    li $t2, 0               # Row counter
     sub $s0, $s0, $s1       # Subtract to get initial offset
     li $s1, 0
     j bottom_wall
@@ -508,7 +500,7 @@ reset_rowB:
     add $s0, $s0, $t5
     add $s1, $s1, $t5
 bottom_wall:
-    beq $t1, 872, exit_init_grid          # For loop
+    beq $t1, 864, exit_init_grid          # For loop
     beq $t2, 6, reset_rowB
     sw $t8, 0($s0)
     addi $t2, $t2, 1
@@ -547,6 +539,8 @@ draw_tetromino:
 
 continue_draw_tetromino:
     # Check $s2 = 0
+    li $v1, 0xffff00
+    sw $v1, BlockColor
     beq $s2, $zero, draw_tetromino_O
     
     # Check $s2 = 1
@@ -572,7 +566,7 @@ continue_draw_tetromino:
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
-        li $v1, 0xffff00
+        li $v1, 0x0000FF
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
@@ -582,7 +576,7 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
-        li $v1, 0x0000ff
+        li $v1, 0xFF0000
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
@@ -972,7 +966,7 @@ continue_x_loopL_90:
     li $t3, 4               # Bytes per pixel
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1874,16 +1868,16 @@ end_y_loopS_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 260($t8)          # Load the current color at the calculated address into $a0
     jal collision_code  # If color matches, there's collision
     lw $a0, 384($t8)          # Load the current color at the calculated address into $a0
@@ -1903,6 +1897,7 @@ end_y_loopS_90:
     jr $ra                  # Return from subroutine
 
 draw_tetromino_S_180: #subroutine to draw square tetromino
+    sw $ra, savedRA     # Restore $ra from the global variable
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
@@ -1937,10 +1932,7 @@ continue_x_loopS_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -1959,40 +1951,22 @@ end_y_loopS_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
     
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     
     sw $t6, 0($t8)
     sw $t6, 4($t8)
@@ -2002,10 +1976,12 @@ end_y_loopS_180:
     sw $t6, -124($t8)
     sw $t6, -120($t8)
     sw $t6, -116($t8)
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
 
 
 draw_tetromino_S_270: #subroutine to draw square tetromino
+    sw $ra, savedRA     # Restore $ra from the global variable
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
@@ -2039,11 +2015,8 @@ continue_x_loopS_270:
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
     
-    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0   
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     
@@ -2063,40 +2036,22 @@ end_y_loopS_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -260($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
     
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -260($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     
     sw $t6, 0($t8)
     sw $t6, -4($t8)
@@ -2106,11 +2061,12 @@ end_y_loopS_270:
     sw $t6, -132($t8)
     sw $t6, -256($t8)
     sw $t6, -260($t8)
-    
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
 
 
 draw_tetromino_Z: #subroutine to draw square tetromino
+    sw $ra, savedRA     # Restore $ra from the global variable
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
@@ -2144,11 +2100,8 @@ continue_x_loopZ:
     mul $t2, $t2, $t3       # Convert to byte offset
     add $t2, $t0, $t2       # Add to the base address
     
-    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0    
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2167,40 +2120,22 @@ end_y_loopZ:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 136($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
     
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 136($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 140($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     
     sw $t6, 0($t8)
     sw $t6, 4($t8)
@@ -2210,11 +2145,12 @@ end_y_loopZ:
     sw $t6, 132($t8)
     sw $t6, 136($t8)
     sw $t6, 140($t8)
-    
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
 
 
 draw_tetromino_Z_90: #subroutine to draw square tetromino
+    sw $ra, savedRA     # Restore $ra from the global variable
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
@@ -2249,10 +2185,10 @@ continue_x_loopZ_90:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    jal collision_code  # If color matches, there's collision
+    
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2271,40 +2207,23 @@ end_y_loopZ_90:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
     
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
+    
     
     sw $t6, 0($t8)
     sw $t6, 4($t8)
@@ -2314,11 +2233,13 @@ end_y_loopZ_90:
     sw $t6, -124($t8)
     sw $t6, -256($t8)
     sw $t6, -252($t8)
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
 
 
 draw_tetromino_Z_180: #subroutine to draw square tetromino
-   move $t4, $s4     # Load the X-coordinate
+    sw $ra, savedRA     # Restore $ra from the global variable
+    move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     li $s2, 3               # Label Tetromino_S for identification
@@ -2352,10 +2273,7 @@ continue_x_loopZ_180:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2374,39 +2292,23 @@ end_y_loopZ_180:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 8($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 12($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -120($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
+
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 8($t8)
@@ -2415,10 +2317,12 @@ end_y_loopZ_180:
     sw $t6, -124($t8)
     sw $t6, -120($t8)
     sw $t6, -116($t8)
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
     
     
 draw_tetromino_Z_270: #subroutine to draw square tetromino
+    sw $ra, savedRA     # Restore $ra from the global variable
     move $t4, $s4     # Load the X-coordinate
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
@@ -2453,10 +2357,7 @@ continue_x_loopZ_270:
     add $t2, $t0, $t2       # Add to the base address
     
     lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t2)          # Store the block color at the calculated address
     
     addi $t7, $t7, 1        # Increment X loop counter
@@ -2475,39 +2376,22 @@ end_y_loopZ_270:
     add $t8, $t0, $t8        # Add to the base address
     
     lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BlockColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    
+    jal collision_code  # If color matches, there's collision
     lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 0($t8)          # Load the current color at the calculated address into $a0
-    lw $a1, BorderColor      # Set $a1 to check for Red
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 4($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, 132($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -128($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -124($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -256($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
-    lw $a0, -252($t8)          # Load the current color at the calculated address into $a0
-    beq $a0, $a1, collision_code  # If color matches, there's collision
+    jal collision_code  # If color matches, there's collision
     sw $t6, 0($t8)
     sw $t6, 4($t8)
     sw $t6, 128($t8)
@@ -2516,4 +2400,5 @@ end_y_loopZ_270:
     sw $t6, -124($t8)
     sw $t6, -256($t8)
     sw $t6, -252($t8)
+    lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
