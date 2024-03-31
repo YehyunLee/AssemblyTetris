@@ -162,8 +162,8 @@ re_pause:
     beq $a0, 0x70, wait_keyboard
 pause_game:
     # Retrieve values for the current tetromino from the stack
-    li $t4, 0
-    li $t5, 0
+    li $t4, 1
+    li $t5, 2
 
     # Move loaded values to respective registers
     move $s4, $t4               # s4 = loaded value for s4
@@ -172,57 +172,126 @@ pause_game:
     # Call draw_tetromino with $a0 set to 0 to draw the current tetromino
     li $a0, 0                   # Set $a0 to 0 to draw the current shape
     move $t0, $s0        # Load the base address of the display into $t0
+    li $v1, 0xFF0000
+    sw $v1, BlockColor
+    jal draw_tetromino_P
     
+    li $t4, 1
+    li $t5, 1
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5    
+    li $v1, 0xc7d6d8
+    sw $v1, BlockColor
+    jal draw_tetromino_OP
     
     li $v1, 0xFF0000
     sw $v1, BlockColor
-    draw_tetromino_P:
-        sw $ra, savedRA  # Save $ra to the global variable
-        move $t4, $s4     # Load the X-coordinate
-        move $t5, $s5     # Load the Y-coordinate
-        
-        lw $t6, BlockColor      # Load the block color
-        
-        # Calculate the initial offset
-        li $t1, 32              # Width of the display in pixels
-        mul $t2, $t5, $t1       # Y offset in terms of display width
-        add $t9, $t4, $t2       # Combine X and Y offsets
-        
-        li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-    y_loopP:
-        blt $t8, 8, continue_yP  # If Y loop counter < 8, continue
-        j end_y_loopP            # Else, jump to the end of Y loop
-    continue_yP:
-        li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-    x_loopP:
-        blt $t7, 2, continue_xP  # If X loop counter < 2, continue
-        j end_x_loopP            # Else, jump to the end of X loop
-    continue_xP:
-        # Calculate the offset for each pixel
-        mul $t3, $t8, $t1       # Y offset for the current row
-        add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-        add $t2, $t2, $t3       # Add current Y offset
-        li $t3, 4               # Bytes per pixel
-        mul $t2, $t2, $t3       # Convert to byte offset
-        add $t2, $t0, $t2       # Add to the base address
-        lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-        sw $t6, 0($t2)          # Store the block color at the calculated address
-        addi $t7, $t7, 1        # Increment X loop counter
-        j x_loopP                # Jump back to the start of the X loop
-    end_x_loopP:
-        addi $t8, $t8, 1        # Increment Y loop counter
-        j y_loopP                # Jump back to the start of the Y loop
-    end_y_loopP:
-        lw $ra, savedRA  # Restore $ra from the global variable
+    li $t4, 2
+    li $t5, 4
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    li $t4, 1
+    li $t5, 3
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
     
+    li $t4, 2
+    li $t5, 8
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    
+    li $t4, 2
+    li $t5, 6
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    li $t4, 3
+    li $t5, 5
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
     
     # Retrieve values for the current tetromino from the stack
-    li $t4, 1
-    li $t5, 0
+    li $t4, 4
+    li $t5, 6
     # Move loaded values to respective registers
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
-    draw_tetromino_OP:
+    jal draw_tetromino_OP
+    # Retrieve values for the current tetromino from the stack
+    li $t4, 3
+    li $t5, 7
+    # Move loaded values to respective registers
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    
+    li $t4, 1
+    li $t5, 9
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    li $t4, 1
+    li $t5, 9
+    move $s4, $t4               # s4 = loaded value for s4
+    move $s5, $t5               # s5 = loaded value for s5
+    jal draw_tetromino_OP
+    
+        
+repeat_pause_game:
+	# 1a. Check if key has been pressed
+	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
+	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
+	syscall                   # Perform system call to read from keyboard
+    move $t0, $s7               # $t0 = base address for keyboard
+    lw $t8, 0($t0)                  # Load the first word from the keyboard
+    beq $t8, 1, re_pause
+    j repeat_pause_game
+
+draw_tetromino_P:
+    sw $ra, savedRA  # Save $ra to the global variable
+    move $t4, $s4     # Load the X-coordinate
+    move $t5, $s5     # Load the Y-coordinate
+    
+    lw $t6, BlockColor      # Load the block color
+    
+    # Calculate the initial offset
+    li $t1, 32              # Width of the display in pixels
+    mul $t2, $t5, $t1       # Y offset in terms of display width
+    add $t9, $t4, $t2       # Combine X and Y offsets
+    
+    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
+y_loopP:
+    blt $t8, 8, continue_yP  # If Y loop counter < 8, continue
+    j end_y_loopP            # Else, jump to the end of Y loop
+continue_yP:
+    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
+x_loopP:
+    blt $t7, 2, continue_xP  # If X loop counter < 2, continue
+    j end_x_loopP            # Else, jump to the end of X loop
+continue_xP:
+    # Calculate the offset for each pixel
+    mul $t3, $t8, $t1       # Y offset for the current row
+    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
+    add $t2, $t2, $t3       # Add current Y offset
+    li $t3, 4               # Bytes per pixel
+    mul $t2, $t2, $t3       # Convert to byte offset
+    add $t2, $t0, $t2       # Add to the base address
+    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
+    sw $t6, 0($t2)          # Store the block color at the calculated address
+    addi $t7, $t7, 1        # Increment X loop counter
+    j x_loopP                # Jump back to the start of the X loop
+end_x_loopP:
+    addi $t8, $t8, 1        # Increment Y loop counter
+    j y_loopP                # Jump back to the start of the Y loop
+end_y_loopP:
+    lw $ra, savedRA  # Restore $ra from the global variable
+    jr $ra                  # Return from subroutine
+    
+draw_tetromino_OP:
         sw $ra, savedRA  # Save $ra to the global variable
         move $t4, $s4     # Load the X-coordinate
         move $t5, $s5     # Load the Y-coordinate
@@ -235,12 +304,12 @@ pause_game:
         
         li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
         y_loopOP:
-            blt $t8, 4, continue_yOP  # If Y loop counter < 8, continue
+            blt $t8, 2, continue_yOP  # If Y loop counter < 8, continue
             j end_y_loopOP            # Else, jump to the end of Y loop
         continue_yOP:
             li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
         x_loopOP:
-            blt $t7, 4, continue_xOP  # If X loop counter < 2, continue
+            blt $t7, 2, continue_xOP  # If X loop counter < 2, continue
             j end_x_loopOP            # Else, jump to the end of X loop
         continue_xOP:
             # Calculate the offset for each pixel
@@ -259,17 +328,12 @@ pause_game:
             j y_loopOP                # Jump back to the start of the Y loop
         end_y_loopOP:
             lw $ra, savedRA  # Restore $ra from the global variable
-        
-repeat_pause_game:
-	# 1a. Check if key has been pressed
-	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
-	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
-	syscall                   # Perform system call to read from keyboard
-    move $t0, $s7               # $t0 = base address for keyboard
-    lw $t8, 0($t0)                  # Load the first word from the keyboard
-    beq $t8, 1, re_pause
-    j repeat_pause_game
+            jr $ra                  # Return from subroutine
 ##################################################################################################
+
+
+
+
 
 
 
