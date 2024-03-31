@@ -72,7 +72,7 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -128      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -8000      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
     # OLD CODE
     # Check if stack is empty
@@ -141,9 +141,13 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    # Wait 1s
+    # Speed calc.
+    lw $t1, NumTetrominos
+    mul $t2 $t1, 5
+    li $t1, 1000
+    sub $a0, $t1, $t2 # 1000 ms = 1 s
+    # Wait x seconds
     li  $v0, 32
-    li $a0, 1000  # 1000 ms = 1 s
     syscall
     
     # Call for change
@@ -224,6 +228,9 @@ load_loop:
     # Continue or exit the program
     b load_loop                 # Branch back to the game loop
 load_saved_exit:
+    # TODO: 1) Detect any row clear
+    # 2) Clear that row
+    # 3) Save, calc., move every pixel down
     j returned_create_tetromino
 
 
