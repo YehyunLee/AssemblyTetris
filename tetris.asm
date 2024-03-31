@@ -72,7 +72,7 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -64      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -16      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
     # OLD CODE
     # Check if stack is empty
@@ -80,6 +80,23 @@ game_loop:
     # lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
     # beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
 new_tetromino:
+
+    la $t0, NumTetrominos   # Load the address of NumTetrominos into $t0
+    lw $t1, 0($t0)          # Load the value of NumTetrominos into $t1
+    add $t1, $t1, 1
+    mult $t1, $t1, 16         # Multiply the number of tetrominos by 16 to get the total size in bytes
+
+    move $t2, $sp           # Save the current stack pointer position
+    sub $t3, $sp, $t1         # Subtract 16 from the stack pointer to allocate space for the new tetr
+    sw $t4, 0($t2)          # Store the value of the original stack into temp
+
+    # Restore the stack pointer to its original position
+    move $sp, $t2
+
+    # skip_init_stack:
+
+
+
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
@@ -112,7 +129,7 @@ create_tetromino:
     lw $t0, NumTetrominos
     addi $t0, $t0, 1
     la $t1, NumTetrominos   # Load the address of NumTetrominos into another register ($t1)
-    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointed to by $t1
+    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
 
     j load_saved
     returned_create_tetromino:
