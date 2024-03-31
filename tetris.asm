@@ -32,6 +32,7 @@ ADDR_KBRD:
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
 BlockColor: .word 0x363959  #Block Color of tetrominoes for now
+BlockColorLR: .word 0x000000  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
@@ -254,7 +255,7 @@ collision_code:
     lw $v1, BorderColor # Border Color
     beq $a0, $v1, color_match
     lw $v1, BorderColor # This is for the walls
-    addi $v1, $v1, 100 # Slightly different border-color
+    lw $v1, BlockColorLR
     beq $a0, $v1, color_match
     move $v0, $a0 #Move to v0 to compare background color
     jr $ra  # If no collision is found return
@@ -452,7 +453,7 @@ paint_loop_end:
 wall_initL:
     # INIT
     # li $t8, 0x000000        # Black
-    lw $t8, BorderColor
+    lw $t8, BlockColorLR
     li $t1, 0               # Col counter
     li $t2, 0               # Row counter
     sub $s0, $s0, $s1       # Subtract to get initial offset
@@ -469,8 +470,7 @@ reset_rowL:
 left_wall:
     beq $t1, 6, wall_initR          # For loop
     beq $t2, 129, reset_rowL
-    addi $v0, $t8, 100 # Slightly different color
-    sw $v0, 0($s0)
+    sw $t8, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -496,8 +496,7 @@ reset_rowR:
 right_wall:
     beq $t1, 128, wall_initB          # For loop
     beq $t2, 129, reset_rowR
-    addi $v0, $t8, 100 # Slightly different color
-    sw $v0, 0($s0)
+    sw $t8, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -505,6 +504,7 @@ right_wall:
 
 wall_initB:
     # INIT
+    lw $t8, BlockColor
     li $t1, 832               # Col counter
     li $t2, 0               # Row counter
     sub $s0, $s0, $s1       # Subtract to get initial offset
