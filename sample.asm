@@ -31,7 +31,7 @@ ADDR_KBRD:
 ##############################################################################
 # OTetrominoX: .word 4  # Sample X coordinate
 # OTetrominoY: .word 4   # Sample Y coordinate
-BlockColor: .word 0 #Block Color of tetrominoes for now
+BlockColor: .word 0x363959  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
@@ -72,7 +72,7 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -64      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -128      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
     # OLD CODE
     # Check if stack is empty
@@ -83,23 +83,24 @@ new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
-    lw $v0, Random_seed       # Load seed
-    lw $v1, Random_multiplier # Load multiplier
-    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
-    addi $v0, $v0, 1697       # (Seed * A) + C
-    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
-    sw $v0, Random_seed       # Store updated seed
-    andi $v0, $v0, 7          # Ensure range is within 0-7
-    move $t2, $v0             # Value for s2, 0-6 range
+    # Initialize PRNG with a seed
+    li $a1, 12345          # Seed value for PRNG
+    li $v0, 40             # Syscall for initializing the PRNG
+    syscall
 
-    lw $v0, Random_seed       # Reload the updated seed
-    lw $v1, Random_multiplier # Reload multiplier
-    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
-    addi $v0, $v0, 7487        # (Seed * A) + C
-    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
-    sw $v0, Random_seed       # Store updated seed again
-    andi $v0, $v0, 3          # Correctly constrain range to 0-3 for s3
-    move $t3, $v0             # Move v0 to t3
+    # Generate a pseudorandom number for $t2
+    li $a0, 0              # argument
+    li $v0, 41             # Syscall for getting a pseudorandom number
+    syscall
+    move $t2, $a0          # Move the generated number into $t2
+    andi $t2, $t2, 7       # Ensure $t2's range is within 0-7
+
+    # Generate a pseudorandom number for $t3
+    li $a0, 0              # ID of the PRNG
+    li $v0, 41             # Syscall for getting another pseudorandom number
+    syscall
+    move $t3, $a0          # Move the generated number into $t3
+    andi $t3, $t3, 3       # Ensure $t3's range is within 0-3 (not 0-7 as in your code)
 
     li $t4, 14                # Value for s4
     li $t5, 2                 # Value for s5
@@ -112,7 +113,7 @@ create_tetromino:
     lw $t0, NumTetrominos
     addi $t0, $t0, 1
     la $t1, NumTetrominos   # Load the address of NumTetrominos into another register ($t1)
-    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointed to by $t1
+    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
 
     j load_saved
     returned_create_tetromino:
@@ -140,7 +141,15 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    j wait_keyboard
+    # Wait 1s
+    li  $v0, 32
+    li $a0, 1000  # 1000 ms = 1 s
+    syscall
+    
+    # Call for change
+    li $a0, 115
+    j mutation
+    # j wait_keyboard
 
 ##################################################################################################
 
@@ -297,7 +306,7 @@ mutation:
     subi $t6, $t6, 16
 
     # Retrieve values for the current tetromino from the stack
-    lw $t1, 0($t6)              # Load value for s2
+    lw $t2, 0($t6)              # Load value for s2
     lw $t3, 4($t6)              # Load value for s3
     lw $t4, 8($t6)              # Load value for s4
     lw $t5, 12($t6)             # Load value for s5
@@ -305,7 +314,7 @@ mutation:
     move $a2, $t6
 
     # Move loaded values to respective registers
-    move $s2, $t1               # s2 = loaded value for s2
+    move $s2, $t2               # s2 = loaded value for s2
     move $s3, $t3               # s3 = loaded value for s3
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
@@ -354,7 +363,7 @@ handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     j update
 update:
     # Store values onto the stack
-    sw $t1, 0($a2)              # Load value for s2
+    sw $t2, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
@@ -530,6 +539,8 @@ draw_tetromino:
 
 continue_draw_tetromino:
     # Check $s2 = 0
+    li $v1, 0xffff00
+    sw $v1, BlockColor
     beq $s2, $zero, draw_tetromino_O
     
     # Check $s2 = 1
@@ -555,7 +566,7 @@ continue_draw_tetromino:
     
     check_s2_equals_1:
         # Check $s3 values under $s2 = 1
-        li $v1, 0xffff00
+        li $v1, 0x0000FF
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_I_90
         beq $s3, 1, draw_tetromino_I_180
@@ -565,7 +576,7 @@ continue_draw_tetromino:
     
     check_s2_equals_2:
         # Check $s3 values under $s2 = 2
-        li $v1, 0x0000ff
+        li $v1, 0xFF0000
         sw $v1, BlockColor
         beq $s3, $zero, draw_tetromino_S_90
         beq $s3, 1, draw_tetromino_S_180
