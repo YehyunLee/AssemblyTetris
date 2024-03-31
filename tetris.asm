@@ -83,23 +83,24 @@ new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
-    lw $v0, Random_seed       # Load seed
-    lw $v1, Random_multiplier # Load multiplier
-    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
-    addi $v0, $v0, 1697       # (Seed * A) + C
-    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
-    sw $v0, Random_seed       # Store updated seed
-    andi $v0, $v0, 7          # Ensure range is within 0-7
-    move $t2, $v0             # Value for s2, 0-6 range
+    # Initialize PRNG with a seed
+    li $a1, 12345          # Seed value for PRNG
+    li $v0, 40             # Syscall for initializing the PRNG
+    syscall
 
-    lw $v0, Random_seed       # Reload the updated seed
-    lw $v1, Random_multiplier # Reload multiplier
-    mul $v0, $v0, $v1         # Seed * A (multiplier in $v1)
-    addi $v0, $v0, 7487        # (Seed * A) + C
-    andi $v0, $v0, 0x7FFFFFFF # Apply modulus (2^31)
-    sw $v0, Random_seed       # Store updated seed again
-    andi $v0, $v0, 3          # Correctly constrain range to 0-3 for s3
-    move $t3, $v0             # Move v0 to t3
+    # Generate a pseudorandom number for $t2
+    li $a0, 0              # argument
+    li $v0, 41             # Syscall for getting a pseudorandom number
+    syscall
+    move $t2, $a0          # Move the generated number into $t2
+    andi $t2, $t2, 7       # Ensure $t2's range is within 0-7
+
+    # Generate a pseudorandom number for $t3
+    li $a0, 0              # ID of the PRNG
+    li $v0, 41             # Syscall for getting another pseudorandom number
+    syscall
+    move $t3, $a0          # Move the generated number into $t3
+    andi $t3, $t3, 3       # Ensure $t3's range is within 0-3 (not 0-7 as in your code)
 
     li $t4, 14                # Value for s4
     li $t5, 2                 # Value for s5
@@ -140,13 +141,9 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    # Speed calc.
-    lw $t1, NumTetrominos
-    mul $t2 $t1, 5
-    li $t1, 1000
-    sub $a0, $t1, $t2 # 1000 ms = 1 s
-    # Wait x seconds
+    # Wait 1s
     li  $v0, 32
+    li $a0, 1000  # 1000 ms = 1 s
     syscall
     
     # Call for change
@@ -227,9 +224,6 @@ load_loop:
     # Continue or exit the program
     b load_loop                 # Branch back to the game loop
 load_saved_exit:
-    # TODO: 1) Detect any row clear
-    # 2) Clear that row
-    # 3) Save, calc., move every pixel down
     j returned_create_tetromino
 
 
@@ -350,6 +344,8 @@ mutation:
 
 # Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
 do_nothing:
+    # subi $t4, $t4, 2
+    # li $a3, 0
     j update
 sub_x_2:
     subi $t4, $t4, 2
