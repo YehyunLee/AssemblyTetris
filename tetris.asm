@@ -140,9 +140,13 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    # Wait 1s
+    # Speed calc.
+    lw $t1, NumTetrominos
+    mul $t2 $t1, 5
+    li $t1, 1000
+    sub $a0, $t1, $t2 # 1000 ms = 1 s
+    # Wait x seconds
     li  $v0, 32
-    li $a0, 1000  # 1000 ms = 1 s
     syscall
     
     # Call for change
@@ -223,6 +227,9 @@ load_loop:
     # Continue or exit the program
     b load_loop                 # Branch back to the game loop
 load_saved_exit:
+    # TODO: 1) Detect any row clear
+    # 2) Clear that row
+    # 3) Save, calc., move every pixel down
     j returned_create_tetromino
 
 
