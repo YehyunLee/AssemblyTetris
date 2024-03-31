@@ -246,6 +246,9 @@ collision_code:
     beq $a0, $v1, color_match
     lw $v1, BorderColor # Border Color
     beq $a0, $v1, color_match
+    lw $v1, BorderColor # This is for the walls
+    addi $v1, $v1, 100 # Slightly different border-color
+    beq $a0, $v1, handle_4
     jr $ra  # If no collision is found return
 
 color_match:
@@ -273,6 +276,9 @@ handle_3:
     li $a0, 129
     j mutation
 
+handle_4:
+    li $a0, 0
+    j mutation
 
 ##############################################################################
 # Function for Random
@@ -331,10 +337,14 @@ mutation:
     beq $a0, 115, add_y_2
     beq $a0, 128, sub_y_2  # ADDED FOR COLLISION EXIT
     beq $a0, 129, handle_revert_rotation  # ADDED FOR COLLISION EXIT
+    # Collid wall do nothing
+    beq $a0, 0, do_nothing
     
     j game_loop
 
 # Handle a3: 0:subx2, 1:addx2, 2:addy2, 3:handle_rot
+do_nothing:
+    j update
 sub_x_2:
     subi $t4, $t4, 2
     li $a3, 0
@@ -452,7 +462,8 @@ reset_rowL:
 left_wall:
     beq $t1, 6, wall_initR          # For loop
     beq $t2, 129, reset_rowL
-    sw $t8, 0($s0)
+    addi $v0, $t8, 100 # Slightly different color
+    sw $v0, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
@@ -478,7 +489,8 @@ reset_rowR:
 right_wall:
     beq $t1, 128, wall_initB          # For loop
     beq $t2, 129, reset_rowR
-    sw $t8, 0($s0)
+    addi $v0, $t8, 100 # Slightly different color
+    sw $v0, 0($s0)
     addi $t2, $t2, 1
     addi $s0, $s0, 128
     addi $s1, $s1, 128
