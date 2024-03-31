@@ -143,7 +143,7 @@ wait_keyboard:
 
     # Speed calc.
     lw $t1, NumTetrominos
-    mul $t2 $t1, 20
+    mul $t2 $t1, 5
     li $t1, 1000
     sub $a0, $t1, $t2 # 1000 ms = 1 s
     # Wait x seconds
@@ -369,7 +369,7 @@ sub_y_2:  # ADDED FOR COLLISION EXIT
 handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     subi $t3, $t3, 1
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
-    li $a3, 4
+    # li $a3, 4
     j update
 update:
     # Store values onto the stack
