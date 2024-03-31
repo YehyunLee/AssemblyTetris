@@ -70,7 +70,7 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -64      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -128      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
     # OLD CODE
     # Check if stack is empty
@@ -111,7 +111,7 @@ create_tetromino:
     lw $t0, NumTetrominos
     addi $t0, $t0, 1
     la $t1, NumTetrominos   # Load the address of NumTetrominos into another register ($t1)
-    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointed to by $t1
+    sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
 
     j load_saved
     returned_create_tetromino:
@@ -139,7 +139,15 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    j wait_keyboard
+    # Wait 1s
+    li  $v0, 32
+    li $a0, 1000  # 1000 ms = 1 s
+    syscall
+    
+    # Call for change
+    li $a0, 115
+    j mutation
+    # j wait_keyboard
 
 ##################################################################################################
 
@@ -268,10 +276,6 @@ handle_3:
     li $a0, 129
     j mutation
 
-handle_4:
-    li $a0, 0
-    j mutation
-
 
 ##############################################################################
 # Function for Random
@@ -305,7 +309,7 @@ mutation:
     subi $t6, $t6, 16
 
     # Retrieve values for the current tetromino from the stack
-    lw $t1, 0($t6)              # Load value for s2
+    lw $t2, 0($t6)              # Load value for s2
     lw $t3, 4($t6)              # Load value for s3
     lw $t4, 8($t6)              # Load value for s4
     lw $t5, 12($t6)             # Load value for s5
@@ -313,7 +317,7 @@ mutation:
     move $a2, $t6
 
     # Move loaded values to respective registers
-    move $s2, $t1               # s2 = loaded value for s2
+    move $s2, $t2               # s2 = loaded value for s2
     move $s3, $t3               # s3 = loaded value for s3
     move $s4, $t4               # s4 = loaded value for s4
     move $s5, $t5               # s5 = loaded value for s5
