@@ -382,10 +382,10 @@ update:
     j load_saved
 
 continue_playing: 
-    move $t2, $s2
-    move $t3, $s3
-    move $t4, $s4
-    move $t5, $s5
+    move $s2, $t2
+    move $s3, $t3
+    move $s4, $t4
+    move $s5, $t5
     j load_saved
 ##############################################################################
 # Function for Init Grid
