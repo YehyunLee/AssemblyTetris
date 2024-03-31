@@ -155,6 +155,20 @@ wait_keyboard:
     j mutation
     # j wait_keyboard
 
+
+re_pause:
+    lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
+    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was typed
+    beq $a0, 0x70, wait_keyboard
+pause_game:
+	# 1a. Check if key has been pressed
+	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
+	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
+	syscall                   # Perform system call to read from keyboard
+    move $t0, $s7               # $t0 = base address for keyboard
+    lw $t8, 0($t0)                  # Load the first word from the keyboard
+    beq $t8, 1, re_pause
+    j pause_game
 ##################################################################################################
 
 
@@ -295,7 +309,8 @@ handle_3:
 ##############################################################################
 keyboard_input:
     lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
-    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was 
+    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was typed
+    beq $a0, 0x70, pause_game
     
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
