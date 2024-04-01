@@ -1005,6 +1005,9 @@ draw_tetromino_I:
     move $t5, $s5     # Load the Y-coordinate
     lw $t6, BlockColor      # Load the block color
     
+    # Offset X and Y for rotation
+    addi $t4, $t4, 0
+    addi $t5, $t5, -2
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
     mul $t2, $t5, $t1       # Y offset in terms of display width
@@ -1047,8 +1050,8 @@ draw_tetromino_I_90:
     lw $t6, BlockColor      # Load the block color
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 0
-    addi $t5, $t5, 6
+    addi $t4, $t4, -2
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1096,7 +1099,7 @@ draw_tetromino_I_180:
     
     # Offset X and Y for rotation
     addi $t4, $t4, 0
-    addi $t5, $t5, 6
+    addi $t5, $t5, -4
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1145,8 +1148,8 @@ draw_tetromino_I_270:
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 1
-    addi $t5, $t5, 6
+    addi $t4, $t4, 3
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1559,7 +1562,7 @@ draw_tetromino_J_90:
     
     # Offset X and Y for rotation
     addi $t4, $t4, 0
-    addi $t5, $t5, 6
+    addi $t5, $t5, 4
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1633,8 +1636,8 @@ draw_tetromino_J_180:
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, -2
-    addi $t5, $t5, 4
+    addi $t4, $t4, 0
+    addi $t5, $t5, 2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -1707,7 +1710,7 @@ draw_tetromino_J_270:
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 1
+    addi $t4, $t4, 3
     addi $t5, $t5, 2
     
     # Calculate the initial offset
@@ -2149,8 +2152,8 @@ draw_tetromino_S_90: #subroutine to draw square tetromino
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 0
-    addi $t5, $t5, 2
+    addi $t4, $t4, 2
+    addi $t5, $t5, 0
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
     mul $t2, $t5, $t1       # Y offset in terms of display width
@@ -2231,8 +2234,8 @@ draw_tetromino_S_180: #subroutine to draw square tetromino
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, -4
-    addi $t5, $t5, 0
+    addi $t4, $t4, 2
+    addi $t5, $t5, 2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2270,7 +2273,7 @@ end_y_loopS_180:
     li $t8, 3                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, 2                # X offset foot
+    li $t2, -2                # X offset foot
     add $t2, $t2, $t4        # Add from X = X + initial position
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
@@ -2315,8 +2318,8 @@ draw_tetromino_S_270: #subroutine to draw square tetromino
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 0
-    addi $t5, $t5, 0
+    addi $t4, $t4, 2
+    addi $t5, $t5, 2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2400,8 +2403,8 @@ draw_tetromino_Z: #subroutine to draw square tetromino
     li $s3, 1               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, 0
-    addi $t5, $t5, 0
+    addi $t4, $t4, -2
+    addi $t5, $t5, -2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2485,7 +2488,7 @@ draw_tetromino_Z_90: #subroutine to draw square tetromino
     
     # Offset X and Y for rotation
     addi $t4, $t4, 0
-    addi $t5, $t5, 4
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2526,7 +2529,7 @@ end_y_loopZ_90:
     li $t8, 0                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, -2                # X offset foot
+    li $t2, 2                # X offset foot
     add $t2, $t2, $t4        # Add from X = X + initial position
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
@@ -2572,8 +2575,8 @@ draw_tetromino_Z_180: #subroutine to draw square tetromino
     li $s3, 2               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
 
-    addi $t4, $t4, -4
-    addi $t5, $t5, 2
+    addi $t4, $t4, -2
+    addi $t5, $t5, 0
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2608,7 +2611,7 @@ end_x_loopZ_180:
     addi $t8, $t8, 1        # Increment Y loop counter
     j y_loopZ_180                # Jump back to the start of the Y loop
 end_y_loopZ_180:
-    li $t8, 3                # Y offset foot
+    li $t8, 7                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
     li $t2, 2                # X offset foot
@@ -2635,14 +2638,14 @@ end_y_loopZ_180:
     lw $a0, -116($t8)          # Load the current color at the calculated address into $a0
     jal collision_code  # If color matches, there's collision
 
-    sw $t6, 0($t8)
-    sw $t6, 4($t8)
-    sw $t6, 8($t8)
-    sw $t6, 12($t8)
-    sw $t6, -128($t8)
-    sw $t6, -124($t8)
-    sw $t6, -120($t8)
-    sw $t6, -116($t8)
+    sw $t6, -640($t8)
+    sw $t6, -636($t8)
+    sw $t6, -632($t8)
+    sw $t6, -628($t8)
+    sw $t6, -512($t8)
+    sw $t6, -508($t8)
+    sw $t6, -504($t8)
+    sw $t6, -500($t8)
     lw $ra, savedRA     # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
     
@@ -2656,8 +2659,8 @@ draw_tetromino_Z_270: #subroutine to draw square tetromino
     li $s3, 3               # Rotation: 0 (default), 1 (90), 2 (180), 3 (270)
     
     # Offset X and Y for rotation
-    addi $t4, $t4, -2
-    addi $t5, $t5, 0
+    addi $t4, $t4, 0
+    addi $t5, $t5, -2
     
     # Calculate the initial offset
     li $t1, 32              # Width of the display in pixels
@@ -2692,10 +2695,10 @@ end_x_loopZ_270:
     addi $t8, $t8, 1        # Increment Y loop counter
     j y_loopZ_270                # Jump back to the start of the Y loop
 end_y_loopZ_270:
-    li $t8, 0                # Y offset foot
+    li $t8, 4                # Y offset foot
     add $t8, $t5, $t8        # Add from Y = Y + initial position
     mult $t8, $t8, 32        # Get actual Y offset (row = 32)
-    li $t2, 2                # X offset foot
+    li $t2, -2                # X offset foot
     add $t2, $t2, $t4        # Add from X = X + initial position
     add $t8, $t2, $t8        # Actual coordinate = x + y
     mult $t8, $t8, 4         # Convert to byte offset
