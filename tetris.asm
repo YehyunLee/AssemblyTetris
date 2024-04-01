@@ -110,7 +110,7 @@ create_tetromino:
     li $t4, 14                # Value for s4
     li $t5, 0                 # Value for s5
     # Store values onto the stack
-    # li $t2, 1  # For testing purpose
+    li $t2, 1  # For testing purpose
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
@@ -181,71 +181,6 @@ pause_game:
     li $v1, 0xFF0000
     sw $v1, BlockColor
     jal draw_tetromino_P
-    
-    li $t4, 1
-    li $t5, 1
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5    
-    li $v1, 0xc7d6d8
-    sw $v1, BlockColor
-    jal draw_tetromino_OP
-    
-    li $v1, 0xFF0000
-    sw $v1, BlockColor
-    li $t4, 2
-    li $t5, 4
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 1
-    li $t5, 3
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 2
-    li $t5, 8
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 2
-    li $t5, 6
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 3
-    li $t5, 5
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    # Retrieve values for the current tetromino from the stack
-    li $t4, 4
-    li $t5, 6
-    # Move loaded values to respective registers
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    # Retrieve values for the current tetromino from the stack
-    li $t4, 3
-    li $t5, 7
-    # Move loaded values to respective registers
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 1
-    li $t5, 9
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 1
-    li $t5, 9
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
         
 repeat_pause_game:
 	# 1a. Check if key has been pressed
@@ -259,82 +194,94 @@ repeat_pause_game:
 
 draw_tetromino_P:
     sw $ra, savedRA  # Save $ra to the global variable
-    move $t4, $s4     # Load the X-coordinate
-    move $t5, $s5     # Load the Y-coordinate
+        # Pause symbol
+        sw $t1, 128($t0) # First row
+        sw $t1, 136($t0) # First row
+        sw $t1, 256($t0) # Second row
+        sw $t1, 264($t0) # Second row
+        sw $t1, 384($t0) # Third row
+        sw $t1, 392($t0) # Third row
+        #Letter P
+        move $t1, $v1
+        sw $t1, 3456($t0) # First row
+        sw $t1, 3460($t0) # First row
+        sw $t1, 3464($t0) # First row
+        sw $t1, 3584($t0) # Second row
+        sw $t1, 3596($t0) # Second row
+        sw $t1, 3712($t0) # Third row
+        sw $t1, 3716($t0) # Third row
+        sw $t1, 3720($t0) # Third row
+        sw $t1, 3724($t0) # Third row
+        sw $t1, 3840($t0) # Fourth row
+        sw $t1, 3968($t0) # Fourth row
+    # Letter A    
+        sw $t1, 3484($t0) # First row
+        sw $t1, 3488($t0) # First row
+        sw $t1, 3608($t0) # Second row
+        sw $t1, 3620($t0) # Second row
+        sw $t1, 3736($t0) # Third row
+        sw $t1, 3740($t0) # Third row
+        sw $t1, 3744($t0) # Third row
+        sw $t1, 3748($t0) # Third row
+        sw $t1, 3864($t0) # Fourth row
+        sw $t1, 3876($t0) # Fourth row
+        sw $t1, 3992($t0) # Fifth row
+        sw $t1, 4004($t0) # Fifth row
     
-    lw $t6, BlockColor      # Load the block color
-    
-    # Calculate the initial offset
-    li $t1, 32              # Width of the display in pixels
-    mul $t2, $t5, $t1       # Y offset in terms of display width
-    add $t9, $t4, $t2       # Combine X and Y offsets
-    
-    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopP:
-    blt $t8, 8, continue_yP  # If Y loop counter < 8, continue
-    j end_y_loopP            # Else, jump to the end of Y loop
-continue_yP:
-    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopP:
-    blt $t7, 2, continue_xP  # If X loop counter < 2, continue
-    j end_x_loopP            # Else, jump to the end of X loop
-continue_xP:
-    # Calculate the offset for each pixel
-    mul $t3, $t8, $t1       # Y offset for the current row
-    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-    add $t2, $t2, $t3       # Add current Y offset
-    li $t3, 4               # Bytes per pixel
-    mul $t2, $t2, $t3       # Convert to byte offset
-    add $t2, $t0, $t2       # Add to the base address
-    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    sw $t6, 0($t2)          # Store the block color at the calculated address
-    addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopP                # Jump back to the start of the X loop
-end_x_loopP:
-    addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopP                # Jump back to the start of the Y loop
-end_y_loopP:
+    # Letter U
+       sw $t1, 3504($t0) # First row
+       sw $t1, 3516($t0) # First row
+       sw $t1, 3632($t0) # Second row
+       sw $t1, 3644($t0) # Second row
+       sw $t1, 3760($t0) # Third row
+       sw $t1, 3772($t0) # Third row
+       sw $t1, 3888($t0) # Fourth row
+       sw $t1, 3900($t0) # Fourth row
+       sw $t1, 4016($t0) # Fifth row
+       sw $t1, 4020($t0) # Fifth row
+       sw $t1, 4024($t0) # Fifth row
+       sw $t1, 4028($t0) # Fifth row
+    # Letter S
+       sw $t1, 3528($t0) # First row
+       sw $t1, 3532($t0) # First row
+       sw $t1, 3536($t0) # First row
+       sw $t1, 3656($t0) # Second row
+       sw $t1, 3784($t0) # Third row
+       sw $t1, 3788($t0) # Third row
+       sw $t1, 3792($t0) # Third row
+       sw $t1, 3920($t0) # Fourth row
+       sw $t1, 4040($t0) # Fifth row
+       sw $t1, 4044($t0) # Fifth row
+       sw $t1, 4048($t0) # Fifth row
+    # Letter E
+       sw $t1, 3548($t0) # First row
+       sw $t1, 3552($t0) # First row
+       sw $t1, 3556($t0) # First row
+       sw $t1, 3676($t0) # Second row
+       sw $t1, 3804($t0) # Third row
+       sw $t1, 3808($t0) # Third row
+       sw $t1, 3812($t0) # Third row
+       sw $t1, 3932($t0) # Fourth row
+       sw $t1, 4060($t0) # Fifth row
+       sw $t1, 4064($t0) # Fifth row
+       sw $t1, 4068($t0) # Fifth row
+       
+    # Letter D
+       sw $t1, 3568($t0) # First row
+       sw $t1, 3572($t0) # First row
+       sw $t1, 3576($t0) # First row
+       sw $t1, 3696($t0) # Second row
+       sw $t1, 3708($t0) # Second row
+       sw $t1, 3696($t0) # Second row
+       sw $t1, 3824($t0) # Third row
+       sw $t1, 3836($t0) # Third row
+       sw $t1, 3952($t0) # Fourth row
+       sw $t1, 3964($t0) # Fourth row
+       sw $t1, 4080($t0) # Fifth row
+       sw $t1, 4084($t0) # Fifth row
+       sw $t1, 4088($t0) # Fifth row
     lw $ra, savedRA  # Restore $ra from the global variable
     jr $ra                  # Return from subroutine
-    
-draw_tetromino_OP:
-        sw $ra, savedRA  # Save $ra to the global variable
-        move $t4, $s4     # Load the X-coordinate
-        move $t5, $s5     # Load the Y-coordinate
-        lw $t6, BlockColor      # Load the block color
-        
-        # Calculate the initial offset
-        li $t1, 32              # Width of the display in pixels
-        mul $t2, $t5, $t1       # Y offset in terms of display width
-        add $t9, $t4, $t2       # Combine X and Y offsets
-        
-        li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-        y_loopOP:
-            blt $t8, 2, continue_yOP  # If Y loop counter < 8, continue
-            j end_y_loopOP            # Else, jump to the end of Y loop
-        continue_yOP:
-            li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-        x_loopOP:
-            blt $t7, 2, continue_xOP  # If X loop counter < 2, continue
-            j end_x_loopOP            # Else, jump to the end of X loop
-        continue_xOP:
-            # Calculate the offset for each pixel
-            mul $t3, $t8, $t1       # Y offset for the current row
-            add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-            add $t2, $t2, $t3       # Add current Y offset
-            li $t3, 4               # Bytes per pixel
-            mul $t2, $t2, $t3       # Convert to byte offset
-            add $t2, $t0, $t2       # Add to the base address
-            lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-            sw $t6, 0($t2)          # Store the block color at the calculated address
-            addi $t7, $t7, 1        # Increment X loop counter
-            j x_loopOP                # Jump back to the start of the X loop
-        end_x_loopOP:
-            addi $t8, $t8, 1        # Increment Y loop counter
-            j y_loopOP                # Jump back to the start of the Y loop
-        end_y_loopOP:
-            lw $ra, savedRA  # Restore $ra from the global variable
-            jr $ra                  # Return from subroutine
 ##################################################################################################
 
 
@@ -408,7 +355,10 @@ load_loop:
     jal draw_tetromino
     j row_clear
     completed_row_clear:
-    
+    j row_clear_odd
+    completed_row_clear_odd:
+    # j row_clear_odd2
+    # completed_row_clear_odd2:
     
     
     
@@ -453,17 +403,20 @@ row_loop:
 
     mul $t5, $t1, 32  # row * 32
     add $t5, $t5, $t3  # Corrected to add end_column
-
 column_loop:
     beq $t8, 0, update_row_shift
-    bge $t4, $t5, update_row_shift  # Shift if not matching backgrounds
-
+    
+    # // t6 needs to add 76
+    
+    # addi $v0, $t4, 76
+    beq $t4, $t5, update_row_shift  # Shift if not matching backgrounds
+    lw $v0, Red_color
     sll $t6, $t4, 2  # Index to byte offset (times 4) 0 - 31 pixel * 4
     add $t6, $t0, $t6  # Calculate memory address
     lw $v0, 0($t6)     # Load current pixel color
-    lw $v1, DarkGrey
+    li $v1, 0x808080 #Background color
     beq $v0, $v1, update_row_no_shift  # Check against first background color
-    lw $v1, BrightGrey
+    li $v1, 0xC0C0C0
     beq $v0, $v1, update_row_no_shift  # Check against second background color, skip if not matching
     j increment_index
 
@@ -479,8 +432,9 @@ update_row_shift: # so that it will move everything down
     lw $v0, Red_color
     # subi $t6, $t6, 168      # 244
     jal sub_row
-    ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
     # sw $v0, 0($t6)  # Red dot, testing purpose
+    ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
+    
     addi $t1, $t1, -2  # Increment row and then shift
     jal shift_rows_down
     j row_loop
@@ -533,11 +487,117 @@ sub_128:
     j return_row
 ###############################################################
 
+# Row Clear odd
+###############################################################
+row_clear_odd:
+    # TODO_odd: 1) Detect any row clear
+    # 2) Clear that row
+    # 3) Save, calc., move every pixel down
+    move $t0, $s6  # Base address
+    li $t1, 23          # row = 25 row 
+    li $t2, 24         # start_column = 24
+    li $t3, 100       # end_column = 100
+    li $t9, 27
+    #$t4  start_column each row
+    #$t5 end_column each row
+    #$t6 for actual pixel number
+    #$v0 current pixel color
+    #$v1 background color1 or 2
+row_loop_odd:
+    # blt $t1, $zero, end_loop  # if row <= 0, exit loop
+
+    # Corrected calculation for start and end indices
+    mul $t4, $t1, 32  # row * 32
+    add $t4, $t4, $t2  # Corrected to add start_column
+
+    mul $t5, $t1, 32  # row * 32
+    add $t5, $t5, $t3  # Corrected to add end_column
+column_loop_odd:
+    beq $t8, 0, update_row_shift_odd
+    
+    # // t6 needs to add 76
+    
+    # addi $v0, $t4, 76
+    beq $t4, $t5, update_row_shift_odd  # Shift if not matching backgrounds
+    lw $v0, Red_color
+    sll $t6, $t4, 2  # Index to byte offset (times 4) 0 - 31 pixel * 4
+    add $t6, $t0, $t6  # Calculate memory address
+    lw $v0, 0($t6)     # Load current pixel color
+    li $v1, 0x808080 #Background color
+    beq $v0, $v1, update_row_no_shift_odd  # Check against first background color
+    li $v1, 0xC0C0C0
+    beq $v0, $v1, update_row_no_shift_odd  # Check against second background color, skip if not matching
+    j increment_index_odd
+
+increment_index_odd:
+    addi $t4, $t4, 1  # Increment index
+    j column_loop_odd
+
+update_row_no_shift_odd:
+    addi $t1, $t1, -2  # Increment row without shifting
+    j row_loop_odd
+
+update_row_shift_odd: # so that it will move everything down
+    lw $v0, Red_color
+    # subi $t6, $t6, 168      # 244
+    jal sub_row
+    sw $v0, 0($t6)  # Red dot, testing purpose
+    ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
+    
+    addi $t1, $t1, -2  # Increment row and then shift
+    jal shift_rows_down_odd
+    j row_loop_odd
+
+end_loop_odd:
+   j completed_row_clear_odd
+
+shift_rows_down_odd:
+    li $t8, 21
+    add $t7, $zero, $t6              # Start with the initial pixel address
+
+shift_loop_odd:
+    subi $t8, $t8, 1
+    blez $t8, shift_end_odd    # If $t7 has reached or passed $t0, end the loop
+    lw $v1, 0($t7)             # Load the current pixel color
+    # lw $v0, BrightGrey        # Load first background
+    # bne $v1, $v0, check_second_bg_color   # Check against the first background color
+    # addi $t7, $t7, 4           # Move to the next pixel address
+    # j shift_loop_odd
+    
+    beq $t9, 0, end_loop_odd
+
+check_second_bg_color_odd:
+    # lw $v0, DarkGrey        # Load first background	
+    # bne $v1, $s1, move_pixel_down  # Check against the second background color
+    # addi $t7, $t7, 4           # Move to the next pixel address
+    # j shift_loop_odd
+
+move_pixel_down_odd:
+    lw $v0, -256($t7)          # Load pixel from one row above (assuming -128 correctly offsets by one row)
+    sw $v0, 0($t7)             # Store it in the current pixel's position
+    sw $v0, 128($t7)             # Store it in the current pixel's position
+    addi $t7, $t7, -4           # Move to the next pixel address
+    j shift_loop_odd
+
+shift_end_odd:
+    subi $t9, $t9, 1
+    jr $ra                     # Return from the subroutine
 
 
+sub_row_odd:
+    bne $t8, 0, sub_168_init_odd
+    beq $t8, 0, sub_128_odd
+    return_row_odd:
+        jr $ra
+sub_168_init_odd:
+    subi $t6, $t6, 168      # 244
+    j return_row_odd
+sub_128_odd:
+    subi $t6, $t6, 128      # 244
+    j return_row_odd
 
-
-
+# Row Clear 2
+#####################
 
 
 
