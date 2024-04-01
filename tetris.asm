@@ -110,7 +110,7 @@ create_tetromino:
     li $t4, 14                # Value for s4
     li $t5, 0                 # Value for s5
     # Store values onto the stack
-    li $t2, 1  # For testing purpose
+    # li $t2, 1  # For testing purpose
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
@@ -541,7 +541,7 @@ update_row_shift_odd: # so that it will move everything down
     lw $v0, Red_color
     # subi $t6, $t6, 168      # 244
     jal sub_row
-    sw $v0, 0($t6)  # Red dot, testing purpose
+    # sw $v0, 0($t6)  # Red dot, testing purpose
     ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
     
     addi $t1, $t1, -2  # Increment row and then shift
