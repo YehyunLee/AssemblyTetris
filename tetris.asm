@@ -35,6 +35,7 @@ BlockColor: .word 0x363959  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
+Red_color: .word 0xff0000
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
 DarkGrey: .word 0x808080 #Background color
 BrightGrey: .word 0xC0C0C0 # Background color
@@ -74,11 +75,9 @@ main:
     # Allocate space on the stack to store additional variables
     addi $sp, $sp, -8000      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
-    # OLD CODE
-    # Check if stack is empty
-    # Assuming $sp is already pointing to the stack top
-    # lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
-    # beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
+
+
+
 new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
@@ -105,6 +104,7 @@ create_tetromino:
     li $t4, 14                # Value for s4
     li $t5, 2                 # Value for s5
     # Store values onto the stack
+    li $t2, 1
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
@@ -409,7 +409,90 @@ load_saved_exit:
     # TODO: 1) Detect any row clear
     # 2) Clear that row
     # 3) Save, calc., move every pixel down
-    j returned_create_tetromino
+    move $t0, $s6  # Base address
+    li $t1, 24          # row = 25 row 
+    li $t2, 24         # start_column = 24
+    li $t3, 100       # end_column = 100
+    #$t4  start_column each row
+    #$t5 end_column each row
+    #$t6 for actual pixel number
+    #$v0 current pixel color
+    #$v1 background color1 or 2
+row_loop:
+    blt $t1, $zero, end_loop  # if row <= 0, exit loop
+
+    # Corrected calculation for start and end indices
+    mul $t4, $t1, 32  # row * 32
+    add $t4, $t4, $t2  # Corrected to add start_column
+
+    mul $t5, $t1, 32  # row * 32
+    add $t5, $t5, $t3  # Corrected to add end_column
+
+column_loop:
+    bge $t4, $t5, update_row_shift  # Shift if not matching backgrounds
+
+    sll $t6, $t4, 2  # Index to byte offset (times 4) 0 - 31 pixel * 4
+    add $t6, $t0, $t6  # Calculate memory address
+    lw $v0, 0($t6)     # Load current pixel color
+    lw $v1, DarkGrey
+    beq $v0, $v1, update_row_no_shift  # Check against first background color
+    lw $v1, BrightGrey
+    beq $v0, $v1, update_row_no_shift  # Check against second background color, skip if not matching
+    j increment_index
+
+increment_index:
+    addi $t4, $t4, 1  # Increment index
+    j column_loop
+
+update_row_no_shift:
+    addi $t1, $t1, -2  # Increment row without shifting
+    j row_loop
+
+update_row_shift: # so that it will move everything down
+    lw $v0, Red_color
+    subi $t6, $t6, 244
+    # sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
+    sw $v0, 0($t6)
+    addi $t1, $t1, -2  # Increment row and then shift
+    jal shift_rows_down
+    j row_loop
+
+end_loop:
+   j returned_create_tetromino 
+
+shift_rows_down:
+     # add $v1, $zero, $t1       # Initialize row counter $v1 with starting row $t1
+     # # $t6 index of current_column
+     # # $t7 index of end_column
+     # # $t9 actualy pixel location
+
+# shift_loop_start:
+    # blez $v1, shift_end       # If $v1 less than or equal to 0, end loop
+
+    # # Calculate address offsets for the start and end columns of the current row
+    # mul $t7, $t1, 32  # row * 32
+    # add $t7, $t7, $t2  # Corrected to add start_column
+
+    # mul $t8, $t1, 32  # row * 32
+    # add $t8, $t8, $t3  # Corrected to add end_column
+
+# column_loop:
+    # bge $t7, $t8, update_row_index # If we've reached or passed the end column, update row index
+    # sll $t9, $t7, 2  # Index to byte offset (times 4)
+    # add $t9, $t9, $t0  # Calculate memory address
+    # lw $v0, -128($t9)            # Load pixel from one row above
+    # sw $v0, 0($t9)            # Store it in the current row's corresponding column
+
+    # addi $t7, $t7, 4          # Move to the next pixel in the current row
+    # j column_loop            # Repeat for the next column
+
+# update_row_index:
+    # addi $v1, $v1, -2         # Decrement row index to move to the next row up
+    # j shift_loop_start       # Repeat the process for the next row
+
+shift_end:
+    jr $ra
+
 
 
 # This use a3

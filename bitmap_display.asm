@@ -25,16 +25,15 @@ main:
     li $t3, 0x0000ff        # $t3 = blue
 
     lw $t0, ADDR_DSPL       # $t0 = base address for display
-
-    sw $t2, 8($t0)         # paint the second unit on the first row green
-    sw $t2, 12($t0)        # paint the second unit on the first row green
-    sw $t3, 16($t0)        # paint the first unit on the second row blue
-    sw $t3, 20($t0)        # paint the first unit on the second row blue
     
-    sw $t2, 116($t0)          # paint the second unit on the first row green
-    sw $t2, 112($t0)          # paint the second unit on the first row green
-    sw $t3, 108($t0)        # paint the first unit on the second row blue
-    sw $t3, 104($t0)        # paint the first unit on the second row blue
+    # sw $t1, 3100($t0)          # paint the first unit (i.e., top-left) red
+    # sw $t1, 3228($t0)          # paint the first unit (i.e., top-left) red
+    sw $t1, 3096($t0)          # paint the first unit (i.e., top-left) red
+    # sw $t1, 3224($t0)          # paint the first unit (i.e., top-left) red
+    
+    
+    sw $t2, 4($t0)          # paint the second unit on the first row green
+    sw $t3, 128($t0)        # paint the first unit on the second row blue
 exit:
     li $v0, 10              # terminate the program gracefully
     syscall
