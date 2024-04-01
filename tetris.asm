@@ -413,13 +413,14 @@ load_saved_exit:
     li $t1, 24          # row = 25 row 
     li $t2, 24         # start_column = 24
     li $t3, 100       # end_column = 100
+    li $t9, 27
     #$t4  start_column each row
     #$t5 end_column each row
     #$t6 for actual pixel number
     #$v0 current pixel color
     #$v1 background color1 or 2
 row_loop:
-    blt $t1, $zero, end_loop  # if row <= 0, exit loop
+    # blt $t1, $zero, end_loop  # if row <= 0, exit loop
 
     # Corrected calculation for start and end indices
     mul $t4, $t1, 32  # row * 32
@@ -429,6 +430,7 @@ row_loop:
     add $t5, $t5, $t3  # Corrected to add end_column
 
 column_loop:
+    beq $t8, 0, update_row_shift
     bge $t4, $t5, update_row_shift  # Shift if not matching backgrounds
 
     sll $t6, $t4, 2  # Index to byte offset (times 4) 0 - 31 pixel * 4
@@ -450,9 +452,10 @@ update_row_no_shift:
 
 update_row_shift: # so that it will move everything down
     lw $v0, Red_color
-    subi $t6, $t6, 244
-    # sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
-    sw $v0, 0($t6)
+    # subi $t6, $t6, 168      # 244
+    jal sub_row
+    ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
+    sw $v0, 0($t6)  # Red dot, testing purpose
     addi $t1, $t1, -2  # Increment row and then shift
     jal shift_rows_down
     j row_loop
@@ -461,39 +464,48 @@ end_loop:
    j returned_create_tetromino 
 
 shift_rows_down:
-     # add $v1, $zero, $t1       # Initialize row counter $v1 with starting row $t1
-     # # $t6 index of current_column
-     # # $t7 index of end_column
-     # # $t9 actualy pixel location
+    li $t8, 21
+    add $t7, $zero, $t6              # Start with the initial pixel address
 
-# shift_loop_start:
-    # blez $v1, shift_end       # If $v1 less than or equal to 0, end loop
+shift_loop:
+    subi $t8, $t8, 1
+    blez $t8, shift_end    # If $t7 has reached or passed $t0, end the loop
+    lw $v1, 0($t7)             # Load the current pixel color
+    # lw $v0, BrightGrey        # Load first background
+    # bne $v1, $v0, check_second_bg_color   # Check against the first background color
+    # addi $t7, $t7, 4           # Move to the next pixel address
+    # j shift_loop
+    
+    beq $t9, 0, end_loop
 
-    # # Calculate address offsets for the start and end columns of the current row
-    # mul $t7, $t1, 32  # row * 32
-    # add $t7, $t7, $t2  # Corrected to add start_column
+check_second_bg_color:
+    # lw $v0, DarkGrey        # Load first background	
+    # bne $v1, $s1, move_pixel_down  # Check against the second background color
+    # addi $t7, $t7, 4           # Move to the next pixel address
+    # j shift_loop
 
-    # mul $t8, $t1, 32  # row * 32
-    # add $t8, $t8, $t3  # Corrected to add end_column
-
-# column_loop:
-    # bge $t7, $t8, update_row_index # If we've reached or passed the end column, update row index
-    # sll $t9, $t7, 2  # Index to byte offset (times 4)
-    # add $t9, $t9, $t0  # Calculate memory address
-    # lw $v0, -128($t9)            # Load pixel from one row above
-    # sw $v0, 0($t9)            # Store it in the current row's corresponding column
-
-    # addi $t7, $t7, 4          # Move to the next pixel in the current row
-    # j column_loop            # Repeat for the next column
-
-# update_row_index:
-    # addi $v1, $v1, -2         # Decrement row index to move to the next row up
-    # j shift_loop_start       # Repeat the process for the next row
+move_pixel_down:
+    lw $v0, -256($t7)          # Load pixel from one row above (assuming -128 correctly offsets by one row)
+    sw $v0, 0($t7)             # Store it in the current pixel's position
+    addi $t7, $t7, -4           # Move to the next pixel address
+    j shift_loop
 
 shift_end:
-    jr $ra
+    subi $t9, $t9, 1
+    jr $ra                     # Return from the subroutine
 
 
+sub_row:
+    bne $t8, 0, sub_168_init
+    beq $t8, 0, sub_128
+    return_row:
+        jr $ra
+sub_168_init:
+    subi $t6, $t6, 168      # 244
+    j return_row
+sub_128:
+    subi $t6, $t6, 128      # 244
+    j return_row
 
 # This use a3
 collision_code:
