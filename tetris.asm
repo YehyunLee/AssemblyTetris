@@ -400,12 +400,31 @@ load_loop:
     # Call draw_tetromino with $a0 set to 0 to draw the current tetromino
     li $a0, 0                   # Set $a0 to 0 to draw the current shape
     jal draw_tetromino
+    j row_clear
+    completed_row_clear:
+    
+    
+    
+    
     # Increment the index counter
     addi $a2, $a2, 1            # Increment index counter
 
     # Continue or exit the program
     b load_loop                 # Branch back to the game loop
 load_saved_exit:
+    j returned_create_tetromino
+
+
+
+
+
+
+
+
+
+# Row Clear
+###############################################################
+row_clear:
     # TODO: 1) Detect any row clear
     # 2) Clear that row
     # 3) Save, calc., move every pixel down
@@ -455,13 +474,13 @@ update_row_shift: # so that it will move everything down
     # subi $t6, $t6, 168      # 244
     jal sub_row
     ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
-    sw $v0, 0($t6)  # Red dot, testing purpose
+    # sw $v0, 0($t6)  # Red dot, testing purpose
     addi $t1, $t1, -2  # Increment row and then shift
     jal shift_rows_down
     j row_loop
 
 end_loop:
-   j returned_create_tetromino 
+   j completed_row_clear 
 
 shift_rows_down:
     li $t8, 21
@@ -506,6 +525,17 @@ sub_168_init:
 sub_128:
     subi $t6, $t6, 128      # 244
     j return_row
+###############################################################
+
+
+
+
+
+
+
+
+
+
 
 # This use a3
 collision_code:
