@@ -29,7 +29,7 @@ main:
     # sw $t1, 3100($t0)          # paint the first unit (i.e., top-left) red
     # sw $t1, 3228($t0)          # paint the first unit (i.e., top-left) red
     sw $t1, 3096($t0)          # paint the first unit (i.e., top-left) red
-    # sw $t1, 3224($t0)          # paint the first unit (i.e., top-left) red
+    sw $t1, 3224($t0)          # paint the first unit (i.e., top-left) red
     
     
     sw $t2, 4($t0)          # paint the second unit on the first row green
