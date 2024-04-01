@@ -574,7 +574,8 @@ color_match:
     beq $a3, 2, handle_2
     beq $a3, 3, handle_3
     # If $a3 doesn't match expected values, jump to error handling
-    j respond_to_Q  # Change this to appropriate handling if no $a3 match
+    j load_saved
+    # j respond_to_Q  # Change this to appropriate handling if no $a3 match
 
 handle_0:
     li $a0, 100
