@@ -1,5 +1,5 @@
     .data
-Random_seed: .word 11923 #Random seed to generate tetrominoes
+Random_seed: .word 1 #Random seed to generate tetrominoes
 Random_multiplier: .word 4721
 savedRA: .word 0 # Used to save return address before getting overwritten
 
@@ -82,8 +82,14 @@ new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
+    lw $t0, Random_seed
+    addi $t0, $t0, 1
+    la $t1, Random_seed   # Load the address of Random_seed into another register ($t1)
+    sw $t0, 0($t1)       # Store the value
+
     # Initialize PRNG with a seed
-    li $a1, 12345          # Seed value for PRNG
+    # li $a1, 12345          # Seed value for PRNG
+    lw $a1, Random_seed          # Seed value for PRNG
     li $v0, 40             # Syscall for initializing the PRNG
     syscall
 
@@ -102,9 +108,9 @@ create_tetromino:
     andi $t3, $t3, 3       # Ensure $t3's range is within 0-3 (not 0-7 as in your code)
 
     li $t4, 14                # Value for s4
-    li $t5, 2                 # Value for s5
+    li $t5, 0                 # Value for s5
     # Store values onto the stack
-    li $t2, 1
+    # li $t2, 1  # For testing purpose
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
