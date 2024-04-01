@@ -25,7 +25,13 @@ main:
     li $t3, 0x0000ff        # $t3 = blue
 
     lw $t0, ADDR_DSPL       # $t0 = base address for display
-    sw $t1, 0($t0)          # paint the first unit (i.e., top-left) red
+    
+    # sw $t1, 3100($t0)          # paint the first unit (i.e., top-left) red
+    # sw $t1, 3228($t0)          # paint the first unit (i.e., top-left) red
+    sw $t1, 3096($t0)          # paint the first unit (i.e., top-left) red
+    # sw $t1, 3224($t0)          # paint the first unit (i.e., top-left) red
+    
+    
     sw $t2, 4($t0)          # paint the second unit on the first row green
     sw $t3, 128($t0)        # paint the first unit on the second row blue
 exit:

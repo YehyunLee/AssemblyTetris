@@ -1,5 +1,5 @@
     .data
-Random_seed: .word 1 #Random seed to generate tetrominoes
+Random_seed: .word 11923 #Random seed to generate tetrominoes
 Random_multiplier: .word 4721
 savedRA: .word 0 # Used to save return address before getting overwritten
 
@@ -35,7 +35,6 @@ BlockColor: .word 0x363959  #Block Color of tetrominoes for now
 BorderColor: .word 0xc7d6d8 #Border Color of the game for now
 # BlockSize: .word 4  # 2 pixels by 2 bytes per pixel
 # PIXEL: .word 2 # each pixel heigh and width
-Red_color: .word 0xff0000
 NumTetrominos: .word 0xfff000 #Block Color of tetrominoes for now
 DarkGrey: .word 0x808080 #Background color
 BrightGrey: .word 0xC0C0C0 # Background color
@@ -73,23 +72,19 @@ main:
     # Assuming each tuple (Tetromino) occupies 4 words (4 * 4 bytes = 16 bytes)
                             # Idea of tupleArray usuage: [(s2, s3, s4, s5), (s2, s3, s4, s5),...] list of tuples.
     # Allocate space on the stack to store additional variables
-    addi $sp, $sp, -8000      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
+    addi $sp, $sp, -128      # Adjust stack pointer to allocate 4 words (16 bytes) for additional variables
 game_loop:
-
-
-
+    # OLD CODE
+    # Check if stack is empty
+    # Assuming $sp is already pointing to the stack top
+    # lw $t6, 0($sp)      # Load value from the bottom of the allocated space into $t6
+    # beq $t6, $zero, stack_empty   # If $t6 is zero, the stack is empty
 new_tetromino:
     li $a3, 0  # Reset for collision code
     jal load_savedT
 create_tetromino:
-    lw $t0, Random_seed
-    addi $t0, $t0, 1
-    la $t1, Random_seed   # Load the address of Random_seed into another register ($t1)
-    sw $t0, 0($t1)       # Store the value
-
     # Initialize PRNG with a seed
-    # li $a1, 12345          # Seed value for PRNG
-    lw $a1, Random_seed          # Seed value for PRNG
+    li $a1, 12345          # Seed value for PRNG
     li $v0, 40             # Syscall for initializing the PRNG
     syscall
 
@@ -108,9 +103,8 @@ create_tetromino:
     andi $t3, $t3, 3       # Ensure $t3's range is within 0-3 (not 0-7 as in your code)
 
     li $t4, 14                # Value for s4
-    li $t5, 0                 # Value for s5
+    li $t5, 2                 # Value for s5
     # Store values onto the stack
-    # li $t2, 1  # For testing purpose
     sw $t2, 0($t6) 
     sw $t3, 4($t6)
     sw $t4, 8($t6)         
@@ -147,13 +141,9 @@ wait_keyboard:
 	# 3. Draw the screen
 	# 4. Sleep
 
-    # Speed calc.
-    lw $t1, NumTetrominos
-    mul $t2 $t1, 5
-    li $t1, 1000
-    sub $a0, $t1, $t2 # 1000 ms = 1 s
-    # Wait x seconds
+    # Wait 1s
     li  $v0, 32
+    li $a0, 1000  # 1000 ms = 1 s
     syscall
     
     # Call for change
@@ -161,185 +151,7 @@ wait_keyboard:
     j mutation
     # j wait_keyboard
 
-
-re_pause:
-    lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
-    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was typed
-    beq $a0, 0x70, wait_keyboard
-pause_game:
-    # Retrieve values for the current tetromino from the stack
-    li $t4, 1
-    li $t5, 2
-
-    # Move loaded values to respective registers
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-
-    # Call draw_tetromino with $a0 set to 0 to draw the current tetromino
-    li $a0, 0                   # Set $a0 to 0 to draw the current shape
-    move $t0, $s0        # Load the base address of the display into $t0
-    li $v1, 0xFF0000
-    sw $v1, BlockColor
-    jal draw_tetromino_P
-    
-    li $t4, 1
-    li $t5, 1
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5    
-    li $v1, 0xc7d6d8
-    sw $v1, BlockColor
-    jal draw_tetromino_OP
-    
-    li $v1, 0xFF0000
-    sw $v1, BlockColor
-    li $t4, 2
-    li $t5, 4
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 1
-    li $t5, 3
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 2
-    li $t5, 8
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 2
-    li $t5, 6
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 3
-    li $t5, 5
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    # Retrieve values for the current tetromino from the stack
-    li $t4, 4
-    li $t5, 6
-    # Move loaded values to respective registers
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    # Retrieve values for the current tetromino from the stack
-    li $t4, 3
-    li $t5, 7
-    # Move loaded values to respective registers
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-    li $t4, 1
-    li $t5, 9
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    li $t4, 1
-    li $t5, 9
-    move $s4, $t4               # s4 = loaded value for s4
-    move $s5, $t5               # s5 = loaded value for s5
-    jal draw_tetromino_OP
-    
-        
-repeat_pause_game:
-	# 1a. Check if key has been pressed
-	li 		$v0, 32         # Load immediate: $v0 = 32 (code for read word from keyboard)
-	li 		$a0, 1          # Load immediate: $a0 = 1 (number of words to read)
-	syscall                   # Perform system call to read from keyboard
-    move $t0, $s7               # $t0 = base address for keyboard
-    lw $t8, 0($t0)                  # Load the first word from the keyboard
-    beq $t8, 1, re_pause
-    j repeat_pause_game
-
-draw_tetromino_P:
-    sw $ra, savedRA  # Save $ra to the global variable
-    move $t4, $s4     # Load the X-coordinate
-    move $t5, $s5     # Load the Y-coordinate
-    
-    lw $t6, BlockColor      # Load the block color
-    
-    # Calculate the initial offset
-    li $t1, 32              # Width of the display in pixels
-    mul $t2, $t5, $t1       # Y offset in terms of display width
-    add $t9, $t4, $t2       # Combine X and Y offsets
-    
-    li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-y_loopP:
-    blt $t8, 8, continue_yP  # If Y loop counter < 8, continue
-    j end_y_loopP            # Else, jump to the end of Y loop
-continue_yP:
-    li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-x_loopP:
-    blt $t7, 2, continue_xP  # If X loop counter < 2, continue
-    j end_x_loopP            # Else, jump to the end of X loop
-continue_xP:
-    # Calculate the offset for each pixel
-    mul $t3, $t8, $t1       # Y offset for the current row
-    add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-    add $t2, $t2, $t3       # Add current Y offset
-    li $t3, 4               # Bytes per pixel
-    mul $t2, $t2, $t3       # Convert to byte offset
-    add $t2, $t0, $t2       # Add to the base address
-    lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-    sw $t6, 0($t2)          # Store the block color at the calculated address
-    addi $t7, $t7, 1        # Increment X loop counter
-    j x_loopP                # Jump back to the start of the X loop
-end_x_loopP:
-    addi $t8, $t8, 1        # Increment Y loop counter
-    j y_loopP                # Jump back to the start of the Y loop
-end_y_loopP:
-    lw $ra, savedRA  # Restore $ra from the global variable
-    jr $ra                  # Return from subroutine
-    
-draw_tetromino_OP:
-        sw $ra, savedRA  # Save $ra to the global variable
-        move $t4, $s4     # Load the X-coordinate
-        move $t5, $s5     # Load the Y-coordinate
-        lw $t6, BlockColor      # Load the block color
-        
-        # Calculate the initial offset
-        li $t1, 32              # Width of the display in pixels
-        mul $t2, $t5, $t1       # Y offset in terms of display width
-        add $t9, $t4, $t2       # Combine X and Y offsets
-        
-        li $t8, 0               # Initialize Y loop counter (0 to 7 for the I Tetromino height)
-        y_loopOP:
-            blt $t8, 2, continue_yOP  # If Y loop counter < 8, continue
-            j end_y_loopOP            # Else, jump to the end of Y loop
-        continue_yOP:
-            li $t7, 0               # Re-initialize X loop counter (0 to 1 for the I Tetromino width)
-        x_loopOP:
-            blt $t7, 2, continue_xOP  # If X loop counter < 2, continue
-            j end_x_loopOP            # Else, jump to the end of X loop
-        continue_xOP:
-            # Calculate the offset for each pixel
-            mul $t3, $t8, $t1       # Y offset for the current row
-            add $t2, $t7, $t9       # Current X offset including base X and Y offsets
-            add $t2, $t2, $t3       # Add current Y offset
-            li $t3, 4               # Bytes per pixel
-            mul $t2, $t2, $t3       # Convert to byte offset
-            add $t2, $t0, $t2       # Add to the base address
-            lw $a0, 0($t2)          # Load the current color at the calculated address into $a0
-            sw $t6, 0($t2)          # Store the block color at the calculated address
-            addi $t7, $t7, 1        # Increment X loop counter
-            j x_loopOP                # Jump back to the start of the X loop
-        end_x_loopOP:
-            addi $t8, $t8, 1        # Increment Y loop counter
-            j y_loopOP                # Jump back to the start of the Y loop
-        end_y_loopOP:
-            lw $ra, savedRA  # Restore $ra from the global variable
-            jr $ra                  # Return from subroutine
 ##################################################################################################
-
-
-
-
 
 
 
@@ -406,12 +218,6 @@ load_loop:
     # Call draw_tetromino with $a0 set to 0 to draw the current tetromino
     li $a0, 0                   # Set $a0 to 0 to draw the current shape
     jal draw_tetromino
-    j row_clear
-    completed_row_clear:
-    
-    
-    
-    
     # Increment the index counter
     addi $a2, $a2, 1            # Increment index counter
 
@@ -419,128 +225,6 @@ load_loop:
     b load_loop                 # Branch back to the game loop
 load_saved_exit:
     j returned_create_tetromino
-
-
-
-
-
-
-
-
-
-# Row Clear
-###############################################################
-row_clear:
-    # TODO: 1) Detect any row clear
-    # 2) Clear that row
-    # 3) Save, calc., move every pixel down
-    move $t0, $s6  # Base address
-    li $t1, 24          # row = 25 row 
-    li $t2, 24         # start_column = 24
-    li $t3, 100       # end_column = 100
-    li $t9, 27
-    #$t4  start_column each row
-    #$t5 end_column each row
-    #$t6 for actual pixel number
-    #$v0 current pixel color
-    #$v1 background color1 or 2
-row_loop:
-    # blt $t1, $zero, end_loop  # if row <= 0, exit loop
-
-    # Corrected calculation for start and end indices
-    mul $t4, $t1, 32  # row * 32
-    add $t4, $t4, $t2  # Corrected to add start_column
-
-    mul $t5, $t1, 32  # row * 32
-    add $t5, $t5, $t3  # Corrected to add end_column
-
-column_loop:
-    beq $t8, 0, update_row_shift
-    bge $t4, $t5, update_row_shift  # Shift if not matching backgrounds
-
-    sll $t6, $t4, 2  # Index to byte offset (times 4) 0 - 31 pixel * 4
-    add $t6, $t0, $t6  # Calculate memory address
-    lw $v0, 0($t6)     # Load current pixel color
-    lw $v1, DarkGrey
-    beq $v0, $v1, update_row_no_shift  # Check against first background color
-    lw $v1, BrightGrey
-    beq $v0, $v1, update_row_no_shift  # Check against second background color, skip if not matching
-    j increment_index
-
-increment_index:
-    addi $t4, $t4, 1  # Increment index
-    j column_loop
-
-update_row_no_shift:
-    addi $t1, $t1, -2  # Increment row without shifting
-    j row_loop
-
-update_row_shift: # so that it will move everything down
-    lw $v0, Red_color
-    # subi $t6, $t6, 168      # 244
-    jal sub_row
-    ## sw $t0, 0($t1)       # Store the value in $t0 into the memory location pointedskip_int_stack to by $t1
-    # sw $v0, 0($t6)  # Red dot, testing purpose
-    addi $t1, $t1, -2  # Increment row and then shift
-    jal shift_rows_down
-    j row_loop
-
-end_loop:
-   j completed_row_clear 
-
-shift_rows_down:
-    li $t8, 21
-    add $t7, $zero, $t6              # Start with the initial pixel address
-
-shift_loop:
-    subi $t8, $t8, 1
-    blez $t8, shift_end    # If $t7 has reached or passed $t0, end the loop
-    lw $v1, 0($t7)             # Load the current pixel color
-    # lw $v0, BrightGrey        # Load first background
-    # bne $v1, $v0, check_second_bg_color   # Check against the first background color
-    # addi $t7, $t7, 4           # Move to the next pixel address
-    # j shift_loop
-    
-    beq $t9, 0, end_loop
-
-check_second_bg_color:
-    # lw $v0, DarkGrey        # Load first background	
-    # bne $v1, $s1, move_pixel_down  # Check against the second background color
-    # addi $t7, $t7, 4           # Move to the next pixel address
-    # j shift_loop
-
-move_pixel_down:
-    lw $v0, -256($t7)          # Load pixel from one row above (assuming -128 correctly offsets by one row)
-    sw $v0, 0($t7)             # Store it in the current pixel's position
-    addi $t7, $t7, -4           # Move to the next pixel address
-    j shift_loop
-
-shift_end:
-    subi $t9, $t9, 1
-    jr $ra                     # Return from the subroutine
-
-
-sub_row:
-    bne $t8, 0, sub_168_init
-    beq $t8, 0, sub_128
-    return_row:
-        jr $ra
-sub_168_init:
-    subi $t6, $t6, 168      # 244
-    j return_row
-sub_128:
-    subi $t6, $t6, 128      # 244
-    j return_row
-###############################################################
-
-
-
-
-
-
-
-
-
 
 
 # This use a3
@@ -562,9 +246,6 @@ collision_code:
     beq $a0, $v1, color_match
     lw $v1, BorderColor # Border Color
     beq $a0, $v1, color_match
-    lw $v1, BorderColor # This is for the walls
-    beq $a0, $v1, color_match
-    move $v0, $a0 #Move to v0 to compare background color
     jr $ra  # If no collision is found return
 
 color_match:
@@ -574,10 +255,7 @@ color_match:
     beq $a3, 2, handle_2
     beq $a3, 3, handle_3
     # If $a3 doesn't match expected values, jump to error handling
-    beq $a3, 4, new_tetromino
-    j game_loop
-    # j load_saved
-    # j respond_to_Q  # Change this to appropriate handling if no $a3 match
+    j respond_to_Q  # Change this to appropriate handling if no $a3 match
 
 handle_0:
     li $a0, 100
@@ -607,8 +285,7 @@ handle_3:
 ##############################################################################
 keyboard_input:
     lw $a0, 4($t0)                  # Load the second word from the keyboard into $a0
-    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was typed
-    beq $a0, 0x70, pause_game
+    beq $a0, 0x71, respond_to_Q     # Check if the key corresponding to ASCII code 0x71 (q) was 
     
     li $v0, 1                       # Load immediate: $v0 = 1 (code for print integer)
     syscall                         # Perform system call to print the value in $a0
@@ -682,23 +359,17 @@ sub_y_2:  # ADDED FOR COLLISION EXIT
 handle_revert_rotation:  # ADDED FOR COLLISION EXIT
     subi $t3, $t3, 1
     andi $t3, $t3, 0x03  # $t3 = $t3 & 3 which is equivalent to $t3 mod 4
-    # li $a3, 4
+    li $a3, 4
     j update
 update:
     # Store values onto the stack
-    beq $v0, $v1, continue_playing
     sw $t2, 0($a2)              # Load value for s2
     sw $t3, 4($a2)              # Load value for s3
     sw $t4, 8($a2)              # Load value for s4
     sw $t5, 12($a2)             # Load value for s5
+
     j load_saved
 
-continue_playing: 
-    move $s2, $t2
-    move $s3, $t3
-    move $s4, $t4
-    move $s5, $t5
-    j load_saved
 ##############################################################################
 # Function for Init Grid
 ##############################################################################
