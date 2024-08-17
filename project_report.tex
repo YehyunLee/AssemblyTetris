@@ -30,10 +30,26 @@
     %       Milestones 4 & 5, list what features you 
     %       implemented, sorted into easy and hard 
     %       categories.
-    - Milestones 1, 2, 3 has been completed!
 
-    For the snapshot of progress take a look at our Github page. Please contact yehyun.lee@mail.utoronto.ca for access to private repo.
-    https://github.com/YehyunLee/AssemblyTetris
+    Last Week:\\
+    - Milestones 1, 2, 3 has been completed!\\
+
+    For the snapshot of progress take a look at our Github page. Please contact yehyun.lee@mail.utoronto.ca for access to private repo.\\
+    https://github.com/YehyunLee/AssemblyTetris \\
+
+    This week:\\
+    - Milestones 4 and 5 completed!\\
+    - We have 4 easy and 2 hard features:\\
+    
+    Easy features:\\
+        - Gravity\\
+        - Speed of gravity increase gradually\\
+        - Pause\\
+        - Different colours of tetrominoes\\
+
+    Hard features:\\
+        - Full set of tetrominoes\\
+        - [Extreme Difficulty] Full row, will lead to powerup of clearing all that row. This may happen simultaneously for multiple rows for those who are full!\\
 
     \item How to view the game:
     % TODO: specify the pixes/unit, width and height of 
@@ -42,8 +58,15 @@
     
     \begin{enumerate}
 
-    \item Run the tetris.asm file in a MIPS IDE such as Saturn or Mars
+\item Note:
+tetris.asm is our main code with bug when row clear happen. This bug happen not often, and minor bug.
+beta.asm is bug free but in beta mode.\\
 
+We will explain this in-person!\\
+
+
+    \item Run the tetris.asm file in a MIPS IDE such as Saturn or Mars
+(try beta.asm too!)
 
     \end{enumerate}
 
@@ -59,12 +82,16 @@
 \item Game Summary:
 % TODO: Tell us a little about your game.
 \begin{itemize}
-\item Pressing `W" would rotate the tetrominoes 90 degrees clockwise
+\item Pressing `W" would rotate the tetrominoes 90 degrees clockwise. `A", and `D" move left or right.
 \item Pressing `S" would decrease the position of incoming tetrominoes by 1 until it collides
 \item If it collides, a new tetromino is loaded into the screen.
-\item For this game version, the program is design to go on until program stops 
-\item Program can be stop by pausing the run or clicking "Q" on the keyboard
-\item For now, only a specific tetormino, specified will get dropped. However, in the next update, we will implement the random function to randomize tetrominoes being created.
+\item For this game version, the program is design to go on until program stops or you press `Q" to terminate.
+\item Program can be paused, i.e., pressing "P", and resume with repeated `P".
+\item We have randomized tetrominoes, all 7, being created, with different shapes and colours!
+\item Gravity is added, and the speed of gravity also increases based on a number of tetrominoes created thus far.
+\item We have row clear, so when row is full, we clear that row!
+\item We didn't add sound so we could play during the lecture. Hope you enjoy :D
+
 \end{itemize}
 
 \begin{verbatim}
@@ -84,7 +111,7 @@
     
 \end{enumerate}
 
-\section{Attribution Table}
+\section{Attribution Table Last Week}
 % TODO: If you worked in partners, tell us who was 
 %       responsible for which features. Some reweighting 
 %       might be possible in cases where one group member
@@ -97,18 +124,50 @@
 \hline
  Yehyun Lee (1008992217) &  Aung Zwe Maw (1008604949) \\ 
  \hline
- [MEDIUM] Coded the background: grid and 3 walls & [HARD] Implemented Original tetromino drawings\\
+ [MEDIUM] Coded the background: grid and 3 walls & [HARD] Implemented Original tetromino drawings (as well as colour)\\
  \hline
  [HARD] Designed and Coded Collision Logic & [HARD] Also created every possible rotated tetromino drawing\\
  \hline
  [HARD] Movement W, A, S, D & ←Hisham helped me debugging with CodeTogether until 2AM.\\ 
  \hline
- [EASY] Coded Keyboard Input & [MEDIUM] Rotation is consisten at a consistent point of origin\\ 
+ [EASY] Coded Keyboard Input (Quit as well) & [MEDIUM] Rotation is consisten at a consistent point of origin\\ 
  \hline
  [HARD] General Game Loop Logic Flow:\\Saving Tetrominoes Information,\\
  Loading and Handles All Game States & [HARD] Rotation code so screen reloads with rotated Tetromino\\
  \hline
 \end{tabular}
+
+
+
+
+
+
+
+
+
+\section{Attribution Table This Week}
+
+\begin{center}
+\begin{tabular}{|| p{0.45\linewidth} | p{0.45\linewidth} ||}
+\hline
+Yehyun Lee (1008992217) & Aung Zwe Maw (1008604949) \\ \hline
+Fixed colour, rotation, row clear bug & Random Added \\
+\hline
+[Ez] Gravity Added & Worked on rotation base point bug TA mentioned last week, but rollback. \\
+\hline
+[Ez] Gravity Speed Increase: based on Num of Tetromino & Fixed collision bug and also ensured that rotations now work with fixed angle \\
+\hline
+[Ez] Pause added: Hisham then improved the design of pause. & ←Pause design improvement, pause now spells `Paused"\\
+\hline
+[Hard] Row Clear: Worked Together. Code didn't work, thus I spent a long time debugging and improve the code. Big thanks to Hisham for coming up with initial code! This was the most extremely difficult part. Fixed even, odd row bug, repeating bug, detection bug, and shift bugs. 
+& [Hard] Row Clear: ←Hisham came up with initial logic for row clear; both contributed hard work.
+
+Hisham added additional grid update work needed for Row Clear.
+\\
+\hline
+\end{tabular}
+\end{center}
+
 
 \begin{figure}[ht!]
     \centering
@@ -127,10 +186,17 @@
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{diagram3.png}
-    \caption{Snapshot of Progress}
+    \includegraphics[width=0.8\textwidth]{diagram3.png}
+    \caption{Snapshot of Progress Last Week}
     \label{f:1}
 \end{figure}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{w2.png}
+    \caption{Snapshot of Progress This Week}
+    \label{f:1}
+\end{figure}
+
 
 
 \end{center}
